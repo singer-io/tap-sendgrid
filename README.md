@@ -25,7 +25,7 @@ This tap:
 
 ## Configuration
 
-This tap requires a `config.json` which specifies details start date and API key. 
+This tap requires a `config.json` which specifies details start date and API key.
 
 ## Run Discovery
 
@@ -43,3 +43,4 @@ To sync data, select fields in the `properties.json` output and run the tap.
 > tap-sendgrid --config config.json --properties properties.json [--state state.json]
 ```
 
+Copyright &copy; 2018 Stitch
