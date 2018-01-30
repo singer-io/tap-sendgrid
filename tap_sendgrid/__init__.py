@@ -3,6 +3,7 @@
 import singer
 from singer.catalog import Catalog, CatalogEntry, Schema
 from singer.utils import parse_args
+from singer import metadata
 
 from . import streams
 from .context import Context
@@ -37,11 +38,21 @@ def discover(ctx):
     for stream in streams.STREAMS:
         schema = Schema.from_dict(streams.load_schema(stream.tap_stream_id),
                                   inclusion="available")
+
+        mdata = metadata.new()
+
+        for prop in schema.properties:
+            if prop in streams.PK_FIELDS[stream.tap_stream_id]:
+                mdata = metadata.write(mdata, ('properties', prop), 'inclusion', 'automatic')
+            else:
+                mdata = metadata.write(mdata, ('properties', prop), 'inclusion', 'available')
+
         catalog.streams.append(CatalogEntry(
             stream=stream.tap_stream_id,
             tap_stream_id=stream.tap_stream_id,
             key_properties=streams.PK_FIELDS[stream.tap_stream_id],
             schema=schema,
+            metadata=metadata.to_list(mdata)
         ))
     return catalog
 
