@@ -32,8 +32,9 @@ def send_selected_properties(schema, record, stream, added_properties):
 
     record = {
         field: r.get(field) for field, val
-        in schema.to_dict()['properties'].items() if val['selected']
+        in schema.to_dict()['properties'].items() if val['selected'] or val['inclusion'] == 'automatic'
     }
+
     if added_properties:
         record.update(added_properties)
 
