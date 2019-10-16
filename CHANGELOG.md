@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.3
+  * Reverts #3
+
 ## 1.0.2
   * Updates permissions used for reading campaigns [#3](https://github.com/singer-io/tap-sendgrid/pull/3)
 
