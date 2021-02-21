@@ -4,7 +4,7 @@ This is a [Singer](https://singer.io) tap that produces JSON-formatted data foll
 
 This tap:
 - Pulls raw data from SendGrid's [REST API](https://sendgrid.com/docs/API_Reference/api_v3.html)
-- Extracts the following resources from HubSpot
+- Extracts the following resources from SendGrid
   - [Contacts](https://sendgrid.com/docs/API_Reference/Web_API_v3/Marketing_Campaigns/contactdb.html#Get-Recipients-Matching-Search-Criteria-GET)
   - [Global Suppressions](https://sendgrid.com/docs/API_Reference/Web_API_v3/Suppression_Management/global_suppressions.html#-Global-Unsubscribes)
   - [Suppression Groups](https://sendgrid.com/docs/API_Reference/Web_API_v3/Suppression_Management/groups.html#-GET)
