@@ -10,7 +10,7 @@ class Scopes(object):
     scopes = [
         'suppression.read',
         'asm.groups.read',
-        'marketing_campaigns.read',
+        # 'marketing_campaigns.read',
         'templates.read',
         'templates.versions.read'
     ]
@@ -30,7 +30,7 @@ class IDS(object):
     BOUNCES = "bounces"
     BLOCKS = "blocks"
     SPAM_REPORTS = "spam_reports"
-    CAMPAIGNS = "campaigns"
+    # CAMPAIGNS = "campaigns"
 
 
 stream_ids = [getattr(IDS, x) for x in dir(IDS)]
@@ -49,7 +49,7 @@ PK_FIELDS = {
     IDS.BOUNCES: ["email"],
     IDS.BLOCKS: ["email"],
     IDS.SPAM_REPORTS: ["email"],
-    IDS.CAMPAIGNS: ["id"],
+    # IDS.CAMPAIGNS: ["id"],
 }
 
 
@@ -80,7 +80,7 @@ STREAMS = [
     Stream(IDS.BOUNCES, BOOKMARKS.BOUNCES, 'https://api.sendgrid.com/v3/suppression/bounces'),
     Stream(IDS.BLOCKS, BOOKMARKS.BLOCKS, 'https://api.sendgrid.com/v3/suppression/blocks'),
     Stream(IDS.SPAM_REPORTS, BOOKMARKS.SPAM_REPORTS, 'https://api.sendgrid.com/v3/suppression/spam_reports'),
-    Stream(IDS.CAMPAIGNS, None, 'https://api.sendgrid.com/v3/campaigns'),
+    # Stream(IDS.CAMPAIGNS, None, 'https://api.sendgrid.com/v3/campaigns'),
 ]
 
 
