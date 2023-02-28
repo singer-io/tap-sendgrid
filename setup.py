@@ -33,7 +33,6 @@ setup(name='tap-sendgrid',
                 "templates_all.json",
                 "blocks.json",
                 "bounces.json",
-                "campaigns.json",
                 "spam_reports.json",
               ]
          },
