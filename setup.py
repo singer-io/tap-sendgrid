@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name='tap-sendgrid',
-      version='1.0.3',
+      version='1.0.4',
       description='Singer.io tap for extracting data from the SendGrid API',
       author='Stitch',
       url='http://singer.io',
@@ -12,6 +12,7 @@ setup(name='tap-sendgrid',
       install_requires=['singer-python==5.0.4',
                         'requests==2.20.0',
                         'pendulum==1.2.0',
+                        'pytz==2022.7.1'
                         ],
       entry_points='''
           [console_scripts]
@@ -32,7 +33,6 @@ setup(name='tap-sendgrid',
                 "templates_all.json",
                 "blocks.json",
                 "bounces.json",
-                "campaigns.json",
                 "spam_reports.json",
               ]
          },

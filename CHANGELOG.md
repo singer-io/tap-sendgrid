@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.4
+  * Add pytz as a requirement. ([based off this issue](https://github.com/singer-io/tap-sendgrid/issues/9))
+
 ## 1.0.3
   * Reverts #3
 
