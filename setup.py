@@ -12,6 +12,7 @@ setup(name='tap-sendgrid',
       install_requires=['singer-python==5.0.4',
                         'requests==2.20.0',
                         'pendulum==1.2.0',
+                        'pytz>=2024.2',
                         ],
       entry_points='''
           [console_scripts]
