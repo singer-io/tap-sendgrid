@@ -2,6 +2,9 @@
 ## 1.0.4
   * Add pytz to install_requires [#13](https://github.com/singer-io/tap-sendgrid/pull/13)
 
+## 1.0.4
+  * Dependabot update [#11](https://github.com/singer-io/tap-sendgrid/pull/11)
+
 ## 1.0.3
   * Reverts #3
 
