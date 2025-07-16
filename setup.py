@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name='tap-sendgrid',
-      version='1.0.4',
+      version='1.0.5',
       description='Singer.io tap for extracting data from the SendGrid API',
       author='Stitch',
       url='http://singer.io',

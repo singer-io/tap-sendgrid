@@ -1,4 +1,8 @@
 # Changelog
+
+## 1.0.5
+* Dependency upgrades [#15](https://github.com/singer-io/tap-sendgrid/pull/15)
+
 ## 1.0.4
   * Add pytz to install_requires [#13](https://github.com/singer-io/tap-sendgrid/pull/13)
 
