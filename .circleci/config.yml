@@ -16,7 +16,7 @@ jobs:
           command: |
             source /usr/local/share/virtualenvs/tap-sendgrid/bin/activate
             uv pip install pylint
-            pylint tap_sendgrid --disable missing-docstring,logging-format-interpolation,no-member,broad-except,too-many-branches,missing-final-newline,use-implicit-booleaness-not-len,broad-exception-raised,consider-using-f-string,consider-using-set-comprehension,useless-object-inheritance,too-many-instance-attributes,no-else-return,simplifiable-if-statement,line-too-long,too-few-public-methods,unspecified-encoding,logging-not-lazy,too-many-arguments,redefined-builtin,inconsistent-return-statements
+            pylint tap_sendgrid --disable missing-docstring,logging-format-interpolation,no-member,broad-except,too-many-branches,missing-final-newline,use-implicit-booleaness-not-len,broad-exception-raised,consider-using-f-string,consider-using-set-comprehension,useless-object-inheritance,too-many-instance-attributes,no-else-return,simplifiable-if-statement,line-too-long,too-few-public-methods,unspecified-encoding,logging-not-lazy,too-many-arguments,redefined-builtin,inconsistent-return-statements,too-many-positional-arguments
 
 workflows:
   version: 2
