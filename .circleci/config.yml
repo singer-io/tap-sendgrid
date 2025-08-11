@@ -1,0 +1,26 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: 218546966473.dkr.ecr.us-east-1.amazonaws.com/circle-ci:stitch-tap-tester-uv
+    steps:
+      - checkout
+      - run:
+          name: 'Setup virtual env'
+          command: |
+            uv venv --python 3.9 /usr/local/share/virtualenvs/tap-sendgrid
+            source /usr/local/share/virtualenvs/tap-sendgrid/bin/activate
+            uv pip install .
+      - run:
+          name: 'pylint'
+          command: |
+            source /usr/local/share/virtualenvs/tap-sendgrid/bin/activate
+            uv pip install pylint
+            pylint tap_sendgrid --disable missing-docstring,logging-format-interpolation,no-member,broad-except,redefined-variable-type,too-many-branches
+
+workflows:
+  version: 2
+  commit:
+    jobs:
+      - build:
+          context: circleci-user
