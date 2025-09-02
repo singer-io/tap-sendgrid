@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.6
+* Library updates [#17](https://github.com/singer-io/tap-sendgrid/pull/17)
+
 ## 1.0.5
 * Dependency upgrades [#15](https://github.com/singer-io/tap-sendgrid/pull/15)
 

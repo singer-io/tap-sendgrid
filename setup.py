@@ -3,16 +3,16 @@
 from setuptools import setup
 
 setup(name='tap-sendgrid',
-      version='1.0.5',
+      version='1.0.6',
       description='Singer.io tap for extracting data from the SendGrid API',
       author='Stitch',
       url='http://singer.io',
       classifiers=['Programming Language :: Python :: 3 :: Only'],
       py_modules=['tap_sendgrid'],
-      install_requires=['singer-python==5.13.2',
-                        'requests==2.32.4',
-                        'pendulum==1.2.0',
-                        'pytz==2024.2',
+      install_requires=['singer-python==6.1.1',
+                        'requests==2.32.5',
+                        'pendulum==3.1.0',
+                        'pytz==2025.2',
                         ],
       entry_points='''
           [console_scripts]
