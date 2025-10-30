@@ -65,22 +65,92 @@ class BOOKMARKS(object):
     SPAM_REPORTS = [IDS.SPAM_REPORTS, "end_time"]
 
 
-Stream = namedtuple("Stream", ("tap_stream_id", "bookmark", "endpoint"))
+Stream = namedtuple("Stream", ("tap_stream_id", "bookmark", "endpoint", "parent"))
 STREAMS = [
-    Stream(IDS.GLOBAL_SUPPRESSIONS, BOOKMARKS.GLOBAL_SUPPRESSIONS, 'https://api.sendgrid.com/v3/suppression/unsubscribes'),
-    Stream(IDS.GROUPS_ALL, None, 'https://api.sendgrid.com/v3/asm/groups'),
-    Stream(IDS.GROUPS_MEMBERS, BOOKMARKS.GROUPS_MEMBERS, 'https://api.sendgrid.com/v3/asm/groups/{}/suppressions'),
-    Stream(IDS.CONTACTS, BOOKMARKS.CONTACTS, 'https://api.sendgrid.com/v3/contactdb/recipients/search'),
-    Stream(IDS.LISTS_ALL, None, 'https://api.sendgrid.com/v3/contactdb/lists'),
-    Stream(IDS.LISTS_MEMBERS, BOOKMARKS.LISTS_MEMBERS, 'https://api.sendgrid.com/v3/contactdb/lists/{}/recipients'),
-    Stream(IDS.SEGMENTS_ALL, None, 'https://api.sendgrid.com/v3/contactdb/segments'),
-    Stream(IDS.SEGMENTS_MEMBERS, BOOKMARKS.SEGMENTS_MEMBERS, 'https://api.sendgrid.com/v3/contactdb/segments/{}/recipients'),
-    Stream(IDS.TEMPLATES_ALL, None, 'https://api.sendgrid.com/v3/templates'),
-    Stream(IDS.INVALIDS, BOOKMARKS.INVALIDS, 'https://api.sendgrid.com/v3/suppression/invalid_emails'),
-    Stream(IDS.BOUNCES, BOOKMARKS.BOUNCES, 'https://api.sendgrid.com/v3/suppression/bounces'),
-    Stream(IDS.BLOCKS, BOOKMARKS.BLOCKS, 'https://api.sendgrid.com/v3/suppression/blocks'),
-    Stream(IDS.SPAM_REPORTS, BOOKMARKS.SPAM_REPORTS, 'https://api.sendgrid.com/v3/suppression/spam_reports'),
-    Stream(IDS.CAMPAIGNS, None, 'https://api.sendgrid.com/v3/campaigns'),
+    Stream(
+        IDS.GLOBAL_SUPPRESSIONS,
+        BOOKMARKS.GLOBAL_SUPPRESSIONS,
+        'https://api.sendgrid.com/v3/suppression/unsubscribes',
+        parent=None
+    ),
+    Stream(
+        IDS.GROUPS_ALL,
+        None,
+        'https://api.sendgrid.com/v3/asm/groups',
+        parent=None
+    ),
+    Stream(
+        IDS.GROUPS_MEMBERS,
+        BOOKMARKS.GROUPS_MEMBERS,
+        'https://api.sendgrid.com/v3/asm/groups/{}/suppressions',
+        parent=IDS.GROUPS_ALL
+    ),
+    Stream(
+        IDS.CONTACTS,
+        BOOKMARKS.CONTACTS,
+        'https://api.sendgrid.com/v3/contactdb/recipients/search',
+        parent=None
+    ),
+    Stream(
+        IDS.LISTS_ALL,
+        None,
+        'https://api.sendgrid.com/v3/contactdb/lists',
+        parent=None
+    ),
+    Stream(
+        IDS.LISTS_MEMBERS,
+        BOOKMARKS.LISTS_MEMBERS,
+        'https://api.sendgrid.com/v3/contactdb/lists/{}/recipients',
+        parent=IDS.LISTS_ALL
+    ),
+    Stream(
+        IDS.SEGMENTS_ALL,
+        None,
+        'https://api.sendgrid.com/v3/contactdb/segments',
+        parent=None
+    ),
+    Stream(
+        IDS.SEGMENTS_MEMBERS,
+        BOOKMARKS.SEGMENTS_MEMBERS,
+        'https://api.sendgrid.com/v3/contactdb/segments/{}/recipients',
+        parent=IDS.SEGMENTS_ALL
+    ),
+    Stream(
+        IDS.TEMPLATES_ALL,
+        None,
+        'https://api.sendgrid.com/v3/templates',
+        parent=None
+    ),
+    Stream(
+        IDS.INVALIDS,
+        BOOKMARKS.INVALIDS,
+        'https://api.sendgrid.com/v3/suppression/invalid_emails',
+        parent=None
+    ),
+    Stream(
+        IDS.BOUNCES,
+        BOOKMARKS.BOUNCES,
+        'https://api.sendgrid.com/v3/suppression/bounces',
+        parent=None
+    ),
+    Stream(
+        IDS.BLOCKS,
+        BOOKMARKS.BLOCKS,
+        'https://api.sendgrid.com/v3/suppression/blocks',
+        parent=None
+    ),
+    Stream(
+        IDS.SPAM_REPORTS,
+        BOOKMARKS.SPAM_REPORTS,
+        'https://api.sendgrid.com/v3/suppression/spam_reports',
+        parent=None
+    ),
+    Stream(
+        IDS.CAMPAIGNS,
+        None,
+        'https://api.sendgrid.com/v3/campaigns',
+        parent=None
+    ),
 ]
 
 
