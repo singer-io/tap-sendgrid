@@ -40,7 +40,7 @@ def discover(ctx):
                                   inclusion="available")
 
         mdata = metadata.new()
-        mdata = metadata.write(mdata, (), 'inclusion', 'available')
+        mdata = metadata.write(mdata, ())
 
         replication_method = 'INCREMENTAL' if stream.bookmark else 'FULL_TABLE'
 
