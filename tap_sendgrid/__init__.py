@@ -45,7 +45,7 @@ def discover(ctx):
             replication_method = 'INCREMENTAL'
         else:
             replication_method = 'FULL_TABLE'
-            
+
         mdata = metadata.write(mdata, (), 'forced-replication-method', replication_method)
         if stream.parent:
             mdata = metadata.write(mdata, (), 'parent-tap-stream-id', stream.parent)
