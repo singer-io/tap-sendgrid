@@ -41,10 +41,8 @@ def discover(ctx):
 
         mdata = metadata.new()
         mdata = metadata.write(mdata, (), 'inclusion', 'available')
-        if stream.bookmark:
-            replication_method = 'INCREMENTAL'
-        else:
-            replication_method = 'FULL_TABLE'
+
+        replication_method = 'INCREMENTAL' if stream.bookmark else 'FULL_TABLE'
 
         mdata = metadata.write(mdata, (), 'forced-replication-method', replication_method)
         if stream.parent:
