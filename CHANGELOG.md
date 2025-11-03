@@ -3,7 +3,7 @@
 ## 1.0.5
 * Metadata Updates [#18](https://github.com/singer-io/tap-sendgrid/pull/18)
 
-## 1.0.5
+## 1.1.0
 * Dependency upgrades [#15](https://github.com/singer-io/tap-sendgrid/pull/15)
 
 ## 1.0.4
