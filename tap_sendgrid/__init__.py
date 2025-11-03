@@ -33,14 +33,13 @@ def check_credentials_are_authorized(ctx):
 
 
 def discover(ctx):
-    check_credentials_are_authorized(ctx)
+    # check_credentials_are_authorized(ctx)
     catalog = Catalog([])
     for stream in streams.STREAMS:
         schema = Schema.from_dict(streams.load_schema(stream.tap_stream_id),
                                   inclusion="available")
 
         mdata = metadata.new()
-        mdata = metadata.write(mdata, ())
 
         replication_method = 'INCREMENTAL' if stream.bookmark else 'FULL_TABLE'
 
