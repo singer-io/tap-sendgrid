@@ -10,6 +10,7 @@ class Scopes(object):
     scopes = [
         'suppression.read',
         'asm.groups.read',
+        'marketing_campaigns.read',
         'templates.read',
         'templates.versions.read'
     ]
