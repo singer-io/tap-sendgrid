@@ -7,10 +7,11 @@ import singer
 class Scopes(object):
     source = 'auth_check'
     endpoint = 'https://api.sendgrid.com/v3/scopes'
+    # Removed 'marketing_campaigns.read' as it was deprecated along with
+    # Legacy Marketing Campaigns API (/v3/contactdb/* and /v3/campaigns endpoints)
     scopes = [
         'suppression.read',
         'asm.groups.read',
-        'marketing_campaigns.read',
         'templates.read',
         'templates.versions.read'
     ]
@@ -66,21 +67,19 @@ class BOOKMARKS(object):
 
 
 Stream = namedtuple("Stream", ("tap_stream_id", "bookmark", "endpoint"))
+# Removed deprecated Legacy Marketing Campaigns streams:
+# - CONTACTS, LISTS_ALL, LISTS_MEMBERS, SEGMENTS_ALL, SEGMENTS_MEMBERS, CAMPAIGNS
+# These relied on deprecated /v3/contactdb/* and /v3/campaigns endpoints
+# and the no-longer-available marketing_campaigns.read scope
 STREAMS = [
     Stream(IDS.GLOBAL_SUPPRESSIONS, BOOKMARKS.GLOBAL_SUPPRESSIONS, 'https://api.sendgrid.com/v3/suppression/unsubscribes'),
     Stream(IDS.GROUPS_ALL, None, 'https://api.sendgrid.com/v3/asm/groups'),
     Stream(IDS.GROUPS_MEMBERS, BOOKMARKS.GROUPS_MEMBERS, 'https://api.sendgrid.com/v3/asm/groups/{}/suppressions'),
-    Stream(IDS.CONTACTS, BOOKMARKS.CONTACTS, 'https://api.sendgrid.com/v3/contactdb/recipients/search'),
-    Stream(IDS.LISTS_ALL, None, 'https://api.sendgrid.com/v3/contactdb/lists'),
-    Stream(IDS.LISTS_MEMBERS, BOOKMARKS.LISTS_MEMBERS, 'https://api.sendgrid.com/v3/contactdb/lists/{}/recipients'),
-    Stream(IDS.SEGMENTS_ALL, None, 'https://api.sendgrid.com/v3/contactdb/segments'),
-    Stream(IDS.SEGMENTS_MEMBERS, BOOKMARKS.SEGMENTS_MEMBERS, 'https://api.sendgrid.com/v3/contactdb/segments/{}/recipients'),
     Stream(IDS.TEMPLATES_ALL, None, 'https://api.sendgrid.com/v3/templates'),
     Stream(IDS.INVALIDS, BOOKMARKS.INVALIDS, 'https://api.sendgrid.com/v3/suppression/invalid_emails'),
     Stream(IDS.BOUNCES, BOOKMARKS.BOUNCES, 'https://api.sendgrid.com/v3/suppression/bounces'),
     Stream(IDS.BLOCKS, BOOKMARKS.BLOCKS, 'https://api.sendgrid.com/v3/suppression/blocks'),
     Stream(IDS.SPAM_REPORTS, BOOKMARKS.SPAM_REPORTS, 'https://api.sendgrid.com/v3/suppression/spam_reports'),
-    Stream(IDS.CAMPAIGNS, None, 'https://api.sendgrid.com/v3/campaigns'),
 ]
 
 
