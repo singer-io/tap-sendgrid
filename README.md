@@ -3,23 +3,19 @@
 This is a [Singer](https://singer.io) tap that produces JSON-formatted data following the [Singer spec](https://github.com/singer-io/getting-started/blob/master/SPEC.md).
 
 This tap:
-- Pulls raw data from SendGrid's [REST API](https://sendgrid.com/docs/API_Reference/api_v3.html)
+- Pulls raw data from SendGrid's [REST API v3](https://docs.sendgrid.com/api-reference)
 - Extracts the following resources from SendGrid
-  - [Contacts](https://sendgrid.com/docs/API_Reference/Web_API_v3/Marketing_Campaigns/contactdb.html#Get-Recipients-Matching-Search-Criteria-GET)
-  - [Global Suppressions](https://sendgrid.com/docs/API_Reference/Web_API_v3/Suppression_Management/global_suppressions.html#-Global-Unsubscribes)
-  - [Suppression Groups](https://sendgrid.com/docs/API_Reference/Web_API_v3/Suppression_Management/groups.html#-GET)
-  - [Suppression Group Members](https://sendgrid.com/docs/API_Reference/Web_API_v3/Suppression_Management/suppressions.html#-GET)
-  - [Lists](https://sendgrid.com/docs/API_Reference/Web_API_v3/Marketing_Campaigns/contactdb.html#List-All-Lists-GET)
-  - [Lists Recipients](https://sendgrid.com/docs/API_Reference/Web_API_v3/Marketing_Campaigns/contactdb.html#List-Recipients-on-a-List-GET)
-  - [Segments](https://sendgrid.com/docs/API_Reference/Web_API_v3/Marketing_Campaigns/contactdb.html#List-All-Segments-GET)
-  - [Segment Recipients](https://sendgrid.com/docs/API_Reference/Web_API_v3/Marketing_Campaigns/contactdb.html#List-Recipients-On-a-Segment-GET)
-  - [Campaigns](https://sendgrid.com/docs/API_Reference/Web_API_v3/Marketing_Campaigns/campaigns.html#Get-all-Campaigns-GET)
-  - [Templates](https://sendgrid.com/docs/API_Reference/Web_API_v3/Transactional_Templates/templates.html#-GET)
-  - [Invalid Emails](https://sendgrid.com/docs/API_Reference/Web_API_v3/invalid_emails.html#List-all-invalid-emails-GET)
-  - [Bounces](https://sendgrid.com/docs/API_Reference/Web_API_v3/bounces.html#List-all-bounces-GET)
-  - [Blocks](https://sendgrid.com/docs/API_Reference/Web_API_v3/blocks.html#List-all-blocks-GET)
-  - [Spam Reports](https://sendgrid.com/docs/API_Reference/Web_API_v3/spam_reports.html)
-  - [Campaigns](https://sendgrid.com/docs/API_Reference/Web_API_v3/Marketing_Campaigns/campaigns.html#Get-all-Campaigns-GET)
+  - [Global Suppressions](https://docs.sendgrid.com/api-reference/suppressions-global-suppressions/retrieve-all-global-suppressions) - Email addresses globally unsubscribed from all emails
+  - [Suppression Groups](https://docs.sendgrid.com/api-reference/suppressions-unsubscribe-groups/retrieve-all-suppression-groups-associated-with-the-user) - Unsubscribe groups
+  - [Suppression Group Members](https://docs.sendgrid.com/api-reference/suppressions-suppressions/retrieve-all-suppressions-for-a-suppression-group) - Email addresses in suppression groups
+  - [Lists](https://docs.sendgrid.com/api-reference/lists/get-all-lists) - Marketing contact lists
+  - [Segments](https://docs.sendgrid.com/api-reference/segmenting-contacts-v2/get-list-of-segments) - Dynamic contact segments (v2.0)
+  - [Single Sends](https://docs.sendgrid.com/api-reference/single-sends/get-all-single-sends) - One-time email campaigns
+  - [Templates](https://docs.sendgrid.com/api-reference/transactional-templates/retrieve-paged-transactional-templates) - Transactional email templates
+  - [Invalid Emails](https://docs.sendgrid.com/api-reference/invalid-e-mails-api/retrieve-all-invalid-emails) - Invalid email addresses
+  - [Bounces](https://docs.sendgrid.com/api-reference/bounces-api/retrieve-all-bounces) - Bounced email addresses
+  - [Blocks](https://docs.sendgrid.com/api-reference/blocks-api/retrieve-all-blocks) - Blocked email addresses
+  - [Spam Reports](https://docs.sendgrid.com/api-reference/spam-reports-api/retrieve-all-spam-reports) - Spam report email addresses
 - Outputs the schema for each resource
 - Pulls data, incrementally based on input state where possible
 
