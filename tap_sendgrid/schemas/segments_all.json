@@ -3,7 +3,7 @@
   "properties": {
     "id": {
       "type": [
-        "integer"
+        "string"
       ]
     },
     "name": {
@@ -12,16 +12,40 @@
         "string"
       ]
     },
-    "recipient_count": {
+    "contacts_count": {
       "type": [
         "null",
         "integer"
       ]
     },
-    "conditions": {
+    "created_at": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "updated_at": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "parent_list_ids": {
       "type": [
         "null",
         "array"
+      ]
+    },
+    "query_version": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "status": {
+      "type": [
+        "null",
+        "object"
       ]
     }
   }

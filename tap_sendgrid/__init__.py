@@ -97,9 +97,16 @@ def sync(ctx):
     check_credentials_are_authorized(ctx)
 
     for c in ctx.selected_catalog:
-        selected_fields = set(
-            [k for k, v in c.schema.properties.items()
-             if v.selected or k == c.replication_key])
+        # Get selected fields from metadata
+        mdata = metadata.to_map(c.metadata)
+        selected_fields = set()
+        for field_name in c.schema.properties.keys():
+            field_metadata = mdata.get(('properties', field_name), {})
+            if field_metadata.get('selected') or field_metadata.get('inclusion') == 'automatic':
+                selected_fields.add(field_name)
+            elif c.replication_key and field_name == c.replication_key:
+                selected_fields.add(field_name)
+        
         fields = desired_fields(selected_fields, c.schema)
 
         schema = Schema(
@@ -122,8 +129,13 @@ def main_impl():
         ctx.catalog = args.catalog
         sync(ctx)
     else:
-        ctx.catalog = Catalog.from_dict(args.properties) \
-            if args.properties else discover(ctx)
+        # Support both --catalog (new, already a Catalog object) and --properties (old, a dict)
+        if args.catalog:
+            ctx.catalog = args.catalog
+        elif args.properties:
+            ctx.catalog = Catalog.from_dict(args.properties)
+        else:
+            ctx.catalog = discover(ctx)
         sync(ctx)
 
 

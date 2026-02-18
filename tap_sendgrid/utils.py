@@ -5,11 +5,15 @@ from .streams import PK_FIELDS, STREAMS, IDS
 
 def get_results_from_payload(payload):
     """
-    SG sometimes returns Lists or one keyed Dicts
+    SendGrid sometimes returns Lists or one keyed Dicts.
+    New Marketing API returns {'result': [...], '_metadata': {...}}
     """
     if isinstance(payload, dict):
+        # New Marketing API format
+        if 'result' in payload:
+            return payload['result']
+        # Legacy format - return first value
         return next(iter(payload.values()))
-
     else:
         return payload
 
@@ -26,13 +30,14 @@ def make_record_if_str(record, stream):
 
 def send_selected_properties(schema, record, stream, added_properties):
     """
-    Creates and returns new record with selected properties
+    Creates and returns new record with selected properties.
+    Schema is already filtered to only include selected fields by sync().
     """
     r = make_record_if_str(record, stream)
 
+    # Schema has already been filtered, so include all properties
     record = {
-        field: r.get(field) for field, val
-        in schema.to_dict()['properties'].items() if val['selected'] or val['inclusion'] == 'automatic'
+        field: r.get(field) for field in schema.to_dict()['properties'].keys()
     }
 
     if added_properties:
@@ -46,6 +51,8 @@ def trimmed_records(schema, data, stream, added_properties):
     Takes raw data and details on what to sync and returns cleaned to records
     with only selected fields
     """
+    if data is None:
+        return []
     return [send_selected_properties(schema, r, stream, added_properties)
             for r in data]
 
@@ -86,12 +93,11 @@ def find_old_list_count(list_id, all_lists_state):
 def clean_for_cache(data, tap_stream_id):
     """
     For saving lists sizes to cache, clean to just ID and member count.
-    Applicable to GROUPS, LISTS, and SEGMENTS
+    Applicable to GROUPS and LISTS (SEGMENTS no longer tracked for member_count)
     """
     lookup_keys = {
-        IDS.LISTS_ALL: 'recipient_count',
+        IDS.LISTS_ALL: 'contact_count',
         IDS.GROUPS_ALL: 'unsubscribes',
-        IDS.SEGMENTS_ALL: 'recipient_count',
     }
     if tap_stream_id in lookup_keys:
         return [

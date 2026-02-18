@@ -3,7 +3,7 @@
   "properties": {
     "id": {
       "type": [
-        "integer"
+        "string"
       ]
     },
     "name": {
@@ -12,10 +12,16 @@
         "string"
       ]
     },
-    "recipient_count": {
+    "contact_count": {
       "type": [
         "null",
         "integer"
+      ]
+    },
+    "_metadata": {
+      "type": [
+        "null",
+        "object"
       ]
     }
   }

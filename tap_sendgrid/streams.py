@@ -10,9 +10,9 @@ class Scopes(object):
     scopes = [
         'suppression.read',
         'asm.groups.read',
-        'marketing_campaigns.read',
         'templates.read',
-        'templates.versions.read'
+        'templates.versions.read',
+        'marketing.read'
     ]
 
 
@@ -20,17 +20,18 @@ class IDS(object):
     GLOBAL_SUPPRESSIONS = "global_suppressions"
     GROUPS_ALL = "groups_all"
     GROUPS_MEMBERS = "groups_members"
-    CONTACTS = "contacts"
     LISTS_ALL = "lists_all"
-    LISTS_MEMBERS = "lists_members"
     SEGMENTS_ALL = "segments_all"
-    SEGMENTS_MEMBERS = "segments_members"
     TEMPLATES_ALL = "templates_all"
     INVALIDS = "invalids"
     BOUNCES = "bounces"
     BLOCKS = "blocks"
     SPAM_REPORTS = "spam_reports"
     CAMPAIGNS = "campaigns"
+    MARKETING_CONTACTS_COUNT = "marketing_contacts_count"
+    MARKETING_FIELD_DEFINITIONS = "marketing_field_definitions"
+    MARKETING_STATS_SINGLESENDS = "marketing_stats_singlesends"
+    SENDERS = "senders"
 
 
 stream_ids = [getattr(IDS, x) for x in dir(IDS)]
@@ -39,26 +40,24 @@ PK_FIELDS = {
     IDS.GLOBAL_SUPPRESSIONS: ["email"],
     IDS.GROUPS_ALL: ["id"],
     IDS.GROUPS_MEMBERS: ["email"],
-    IDS.CONTACTS: ["id"],
     IDS.LISTS_ALL: ["id"],
-    IDS.LISTS_MEMBERS: ["id"],
     IDS.SEGMENTS_ALL: ["id"],
-    IDS.SEGMENTS_MEMBERS: ["id"],
     IDS.TEMPLATES_ALL: ["id"],
     IDS.INVALIDS: ["email"],
     IDS.BOUNCES: ["email"],
     IDS.BLOCKS: ["email"],
     IDS.SPAM_REPORTS: ["email"],
     IDS.CAMPAIGNS: ["id"],
+    IDS.MARKETING_CONTACTS_COUNT: [],  # Singleton resource, no primary key
+    IDS.MARKETING_FIELD_DEFINITIONS: ["id"],
+    IDS.MARKETING_STATS_SINGLESENDS: ["id"],
+    IDS.SENDERS: ["id"],
 }
 
 
 class BOOKMARKS(object):
     GLOBAL_SUPPRESSIONS = [IDS.GLOBAL_SUPPRESSIONS, "end_time"]
     GROUPS_MEMBERS = [IDS.GROUPS_MEMBERS, "member_count"]
-    CONTACTS = [IDS.CONTACTS, "timestamp"]
-    LISTS_MEMBERS = [IDS.LISTS_MEMBERS, "member_count"]
-    SEGMENTS_MEMBERS = [IDS.SEGMENTS_MEMBERS, "member_count"]
     INVALIDS = [IDS.INVALIDS, "end_time"]
     BOUNCES = [IDS.BOUNCES, "end_time"]
     BLOCKS = [IDS.BLOCKS, "end_time"]
@@ -86,34 +85,16 @@ STREAMS = [
         parent=IDS.GROUPS_ALL
     ),
     Stream(
-        IDS.CONTACTS,
-        BOOKMARKS.CONTACTS,
-        'https://api.sendgrid.com/v3/contactdb/recipients/search',
-        parent=None
-    ),
-    Stream(
         IDS.LISTS_ALL,
         None,
-        'https://api.sendgrid.com/v3/contactdb/lists',
+        'https://api.sendgrid.com/v3/marketing/lists',
         parent=None
-    ),
-    Stream(
-        IDS.LISTS_MEMBERS,
-        BOOKMARKS.LISTS_MEMBERS,
-        'https://api.sendgrid.com/v3/contactdb/lists/{}/recipients',
-        parent=IDS.LISTS_ALL
     ),
     Stream(
         IDS.SEGMENTS_ALL,
         None,
-        'https://api.sendgrid.com/v3/contactdb/segments',
+        'https://api.sendgrid.com/v3/marketing/segments/2.0',
         parent=None
-    ),
-    Stream(
-        IDS.SEGMENTS_MEMBERS,
-        BOOKMARKS.SEGMENTS_MEMBERS,
-        'https://api.sendgrid.com/v3/contactdb/segments/{}/recipients',
-        parent=IDS.SEGMENTS_ALL
     ),
     Stream(
         IDS.TEMPLATES_ALL,
@@ -148,7 +129,31 @@ STREAMS = [
     Stream(
         IDS.CAMPAIGNS,
         None,
-        'https://api.sendgrid.com/v3/campaigns',
+        'https://api.sendgrid.com/v3/marketing/singlesends',
+        parent=None
+    ),
+    Stream(
+        IDS.MARKETING_CONTACTS_COUNT,
+        None,
+        'https://api.sendgrid.com/v3/marketing/contacts/count',
+        parent=None
+    ),
+    Stream(
+        IDS.MARKETING_FIELD_DEFINITIONS,
+        None,
+        'https://api.sendgrid.com/v3/marketing/field_definitions',
+        parent=None
+    ),
+    Stream(
+        IDS.MARKETING_STATS_SINGLESENDS,
+        None,
+        'https://api.sendgrid.com/v3/marketing/stats/singlesends',
+        parent=None
+    ),
+    Stream(
+        IDS.SENDERS,
+        None,
+        'https://api.sendgrid.com/v3/senders',
         parent=None
     ),
 ]
