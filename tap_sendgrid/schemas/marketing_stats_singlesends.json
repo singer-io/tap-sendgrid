@@ -1,0 +1,43 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": ["null", "string"],
+      "description": "Single send ID"
+    },
+    "stats": {
+      "type": ["null", "object"],
+      "description": "Statistics for the single send",
+      "properties": {
+        "delivered": {
+          "type": ["null", "integer"]
+        },
+        "opens": {
+          "type": ["null", "integer"]
+        },
+        "unique_opens": {
+          "type": ["null", "integer"]
+        },
+        "clicks": {
+          "type": ["null", "integer"]
+        },
+        "unique_clicks": {
+          "type": ["null", "integer"]
+        },
+        "bounces": {
+          "type": ["null", "integer"]
+        },
+        "spam_reports": {
+          "type": ["null", "integer"]
+        },
+        "unsubscribes": {
+          "type": ["null", "integer"]
+        }
+      }
+    },
+    "aggregation": {
+      "type": ["null", "string"],
+      "description": "Aggregation type"
+    }
+  }
+}

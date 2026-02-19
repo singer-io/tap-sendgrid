@@ -12,6 +12,14 @@ def get_results_from_payload(payload):
         # New Marketing API format
         if 'result' in payload:
             return payload['result']
+        # Field definitions returns both reserved and custom fields
+        if 'reserved_fields' in payload:
+            reserved = payload.get('reserved_fields', [])
+            custom = payload.get('custom_fields', [])
+            return reserved + custom
+        # Singleton resources (like contacts_count) - wrap in list
+        if 'contact_count' in payload:
+            return [payload]
         # Legacy format - return first value
         return next(iter(payload.values()))
     else:

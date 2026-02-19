@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": ["null", "string"],
+      "description": "Unique identifier for the field"
+    },
+    "name": {
+      "type": ["null", "string"],
+      "description": "Field name"
+    },
+    "field_type": {
+      "type": ["null", "string"],
+      "description": "Type of field (Text, Number, Date)"
+    },
+    "read_only": {
+      "type": ["null", "boolean"],
+      "description": "Whether the field is read-only"
+    }
+  }
+}

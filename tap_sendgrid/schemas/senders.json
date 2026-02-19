@@ -1,0 +1,77 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": ["null", "integer"],
+      "description": "Sender ID"
+    },
+    "nickname": {
+      "type": ["null", "string"],
+      "description": "Sender nickname"
+    },
+    "from": {
+      "type": ["null", "object"],
+      "description": "From information",
+      "properties": {
+        "email": {
+          "type": ["null", "string"]
+        },
+        "name": {
+          "type": ["null", "string"]
+        }
+      }
+    },
+    "reply_to": {
+      "type": ["null", "object"],
+      "description": "Reply-to information",
+      "properties": {
+        "email": {
+          "type": ["null", "string"]
+        },
+        "name": {
+          "type": ["null", "string"]
+        }
+      }
+    },
+    "address": {
+      "type": ["null", "string"],
+      "description": "Sender address"
+    },
+    "address_2": {
+      "type": ["null", "string"],
+      "description": "Sender address line 2"
+    },
+    "city": {
+      "type": ["null", "string"],
+      "description": "City"
+    },
+    "state": {
+      "type": ["null", "string"],
+      "description": "State"
+    },
+    "zip": {
+      "type": ["null", "string"],
+      "description": "Zip code"
+    },
+    "country": {
+      "type": ["null", "string"],
+      "description": "Country"
+    },
+    "verified": {
+      "type": ["null", "boolean"],
+      "description": "Whether sender is verified"
+    },
+    "locked": {
+      "type": ["null", "boolean"],
+      "description": "Whether sender is locked"
+    },
+    "created_at": {
+      "type": ["null", "integer"],
+      "description": "Creation timestamp"
+    },
+    "updated_at": {
+      "type": ["null", "integer"],
+      "description": "Last update timestamp"
+    }
+  }
+}

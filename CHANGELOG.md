@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.3.0
+* **New Features**: Added 4 new Marketing API streams to expand data coverage
+  * Added `marketing.read` scope to support new Marketing API endpoints
+  
+  * **New Streams**:
+    - `marketing_contacts_count` - [GET /v3/marketing/contacts/count](https://docs.sendgrid.com/api-reference/contacts/get-contact-count) - Returns total contact count, billable count, and breakdown by identifier type
+    - `marketing_field_definitions` - [GET /v3/marketing/field_definitions](https://docs.sendgrid.com/api-reference/custom-fields/get-all-field-definitions) - Returns all custom and reserved field definitions for contacts
+    - `marketing_stats_singlesends` - [GET /v3/marketing/stats/singlesends](https://docs.sendgrid.com/api-reference/single-send-stats/get-all-single-sends-stats) - Returns aggregate statistics for single send campaigns (opens, clicks, bounces, etc.)
+    - `senders` - [GET /v3/senders](https://docs.sendgrid.com/api-reference/sender-identities-api/get-all-sender-identities) - Returns sender identity information including email addresses, physical addresses, and verification status
+  
+  * **Code Improvements**:
+    - Updated `get_results_from_payload()` to handle field definitions API format (merges reserved_fields + custom_fields arrays)
+    - Added special handling for singleton resources like contacts_count (wraps single object response in array)
+    - Total streams increased from 11 to 15
+
 ## 1.2.0
 * **BREAKING CHANGES**: Migrated from deprecated Legacy Marketing Campaigns API to SendGrid Marketing API v3
   * Removed deprecated scope `marketing_campaigns.read` which is no longer available in SendGrid API ([SendGrid Migration Guide](https://docs.sendgrid.com/for-developers/sending-email/migrating-from-legacy-marketing-campaigns))

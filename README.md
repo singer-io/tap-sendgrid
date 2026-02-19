@@ -11,6 +11,10 @@ This tap:
   - [Lists](https://docs.sendgrid.com/api-reference/lists/get-all-lists) - Marketing contact lists
   - [Segments](https://docs.sendgrid.com/api-reference/segmenting-contacts-v2/get-list-of-segments) - Dynamic contact segments (v2.0)
   - [Single Sends](https://docs.sendgrid.com/api-reference/single-sends/get-all-single-sends) - One-time email campaigns
+  - [Contact Count](https://docs.sendgrid.com/api-reference/contacts/get-contact-count) - Total contact and billable contact counts
+  - [Field Definitions](https://docs.sendgrid.com/api-reference/custom-fields/get-all-field-definitions) - Custom and reserved field definitions
+  - [Single Send Stats](https://docs.sendgrid.com/api-reference/single-send-stats/get-all-single-sends-stats) - Campaign statistics for single sends
+  - [Senders](https://docs.sendgrid.com/api-reference/sender-identities-api/get-all-sender-identities) - Sender identity information
   - [Templates](https://docs.sendgrid.com/api-reference/transactional-templates/retrieve-paged-transactional-templates) - Transactional email templates
   - [Invalid Emails](https://docs.sendgrid.com/api-reference/invalid-e-mails-api/retrieve-all-invalid-emails) - Invalid email addresses
   - [Bounces](https://docs.sendgrid.com/api-reference/bounces-api/retrieve-all-bounces) - Bounced email addresses

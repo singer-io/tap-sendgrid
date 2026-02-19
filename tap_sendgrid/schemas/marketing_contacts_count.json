@@ -1,0 +1,34 @@
+{
+  "type": "object",
+  "properties": {
+    "contact_count": {
+      "type": ["null", "integer"],
+      "description": "Total number of contacts"
+    },
+    "billable_count": {
+      "type": ["null", "integer"],
+      "description": "Number of billable contacts"
+    },
+    "identifier_counts": {
+      "type": ["null", "object"],
+      "description": "Breakdown of contacts by identifier type",
+      "properties": {
+        "email": {
+          "type": ["null", "integer"]
+        },
+        "alternate_emails": {
+          "type": ["null", "integer"]
+        },
+        "phone_number_id": {
+          "type": ["null", "integer"]
+        },
+        "external_id": {
+          "type": ["null", "integer"]
+        },
+        "anonymous_id": {
+          "type": ["null", "integer"]
+        }
+      }
+    }
+  }
+}
