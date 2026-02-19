@@ -1,142 +1,30 @@
 #!/usr/bin/env python3
 
 import singer
-from singer.catalog import Catalog, CatalogEntry, Schema
 from singer.utils import parse_args
-from singer import metadata
-
-from . import streams
-from .context import Context
-from .http import authed_get
-from .streams import Scopes
-from .syncs import Syncer
+from tap_sendgrid.discover import discover
+from tap_sendgrid.sync import sync, check_credentials_are_authorized
+from tap_sendgrid.http import authed_get
 
 LOGGER = singer.get_logger()
-
 
 REQUIRED_CONFIG_KEYS = ["start_date", 'api_key']
 
 
-def check_credentials_are_authorized(ctx):
-    res = authed_get(Scopes.source, Scopes.endpoint, ctx.config)
-    scopes = res.json().get('scopes', [])
-
-    missing_auths = set(Scopes.scopes)
-    for s in Scopes.scopes:
-        if s in scopes:
-            missing_auths.remove(s)
-
-    if len(missing_auths):
-        raise Exception('Insufficient authorization, missing for {}'.format(
-            ','.join(missing_auths)
-        ))
-
-
-def discover(ctx):
-    check_credentials_are_authorized(ctx)
-    catalog = Catalog([])
-    for stream in streams.STREAMS:
-        schema = streams.load_schema(stream.tap_stream_id)
-        replication_method = 'INCREMENTAL' if stream.bookmark else 'FULL_TABLE'
-        valid_replication_key = [stream.bookmark[1]] if stream.bookmark else None
-
-        mdata = metadata.new()
-
-        mdata = metadata.get_standard_metadata(
-            schema=schema,
-            key_properties=streams.PK_FIELDS[stream.tap_stream_id],
-            replication_method=replication_method,
-            valid_replication_keys=(valid_replication_key or [])
-        )
-
-        mdata = metadata.to_map(mdata)
-
-        if stream.parent:
-            mdata = metadata.write(mdata, (), 'parent-tap-stream-id', stream.parent)
-
-        mdata = metadata.write(mdata, (), 'selected', True)
-
-        catalog.streams.append(CatalogEntry(
-            stream=stream.tap_stream_id,
-            tap_stream_id=stream.tap_stream_id,
-            key_properties=streams.PK_FIELDS[stream.tap_stream_id],
-            schema=Schema.from_dict(schema, inclusion="available"),
-            metadata=metadata.to_list(mdata)
-        ))
-    return catalog
-
-
-def desired_fields(selected, stream_schema):
-    '''
-    Returns fields that should be synced
-    '''
-    all_fields = set()
-    available = set()
-    automatic = set()
-
-    for field, field_schema in stream_schema.properties.items():
-        all_fields.add(field)
-        inclusion = field_schema.inclusion
-        if inclusion == 'automatic':
-            automatic.add(field)
-        elif inclusion == 'available':
-            available.add(field)
-        else:
-            raise Exception('Unknown inclusion ' + inclusion)
-
-    not_selected_but_automatic = automatic.difference(selected)
-    if not_selected_but_automatic:
-        LOGGER.warning(
-            'Fields %s are required but were not selected. Adding them.',
-            not_selected_but_automatic)
-
-    return selected.intersection(available).union(automatic)
-
-
-def sync(ctx):
-    check_credentials_are_authorized(ctx)
-
-    for c in ctx.selected_catalog:
-        # Get selected fields from metadata
-        mdata = metadata.to_map(c.metadata)
-        selected_fields = set()
-        for field_name in c.schema.properties.keys():
-            field_metadata = mdata.get(('properties', field_name), {})
-            if field_metadata.get('selected') or field_metadata.get('inclusion') == 'automatic':
-                selected_fields.add(field_name)
-            elif c.replication_key and field_name == c.replication_key:
-                selected_fields.add(field_name)
-        
-        fields = desired_fields(selected_fields, c.schema)
-
-        schema = Schema(
-            type='object',
-            properties={prop: c.schema.properties[prop] for prop in fields}
-        )
-        c.schema = schema
-        streams.write_schema(c.tap_stream_id, schema)
-
-    syncer = Syncer(ctx)
-    syncer.sync()
-
-
 def main_impl():
     args = parse_args(REQUIRED_CONFIG_KEYS)
-    ctx = Context(args.config, args.state)
+    config = args.config
+    state = args.state
+
     if args.discover:
-        discover(ctx).dump()
+        catalog = discover()
+        catalog.dump()
     elif args.catalog:
-        ctx.catalog = args.catalog
-        sync(ctx)
+        sync(config, args.catalog, state)
     else:
-        # Support both --catalog (new, already a Catalog object) and --properties (old, a dict)
-        if args.catalog:
-            ctx.catalog = args.catalog
-        elif args.properties:
-            ctx.catalog = Catalog.from_dict(args.properties)
-        else:
-            ctx.catalog = discover(ctx)
-        sync(ctx)
+        LOGGER.info("No Catalog was provided")
+        catalog = discover()
+        catalog.dump()
 
 
 def main():
@@ -145,6 +33,7 @@ def main():
     except Exception as exc:
         LOGGER.critical(exc)
         raise
+
 
 if __name__ == '__main__':
     main()

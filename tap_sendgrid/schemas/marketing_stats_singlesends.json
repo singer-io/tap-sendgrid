@@ -9,6 +9,9 @@
       "type": ["null", "object"],
       "description": "Statistics for the single send",
       "properties": {
+        "requests": {
+          "type": ["null", "integer"]
+        },
         "delivered": {
           "type": ["null", "integer"]
         },
@@ -27,17 +30,29 @@
         "bounces": {
           "type": ["null", "integer"]
         },
+        "bounce_drops": {
+          "type": ["null", "integer"]
+        },
         "spam_reports": {
           "type": ["null", "integer"]
         },
+        "spam_report_drops": {
+          "type": ["null", "integer"]
+        },
         "unsubscribes": {
+          "type": ["null", "integer"]
+        },
+        "unsubscribe_drops": {
+          "type": ["null", "integer"]
+        },
+        "invalid_emails": {
           "type": ["null", "integer"]
         }
       }
     },
     "aggregation": {
       "type": ["null", "string"],
-      "description": "Aggregation type"
+      "description": "Aggregation type (e.g. 'total')"
     }
   }
 }

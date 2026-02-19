@@ -2,45 +2,31 @@
   "type": "object",
   "properties": {
     "id": {
-      "type": [
-        "string"
-      ]
+      "type": ["string"]
     },
     "name": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
     "status": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
     "categories": {
-      "type": [
-        "null",
-        "array"
-      ]
+      "type": ["null", "array"],
+      "items": {
+        "type": "string"
+      }
     },
     "send_at": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"],
+      "format": "date-time"
     },
     "created_at": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"],
+      "format": "date-time"
     },
     "updated_at": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"],
+      "format": "date-time"
     }
   }
 }

@@ -1,6 +1,6 @@
 import singer
+from . import http, streams
 from .streams import IDS
-from .http import authed_get, end_of_records_check
 from .utils import (
     trimmed_records, trim_members_all, get_results_from_payload,
     safe_update_dict,
@@ -96,6 +96,11 @@ class Syncer(object):
             if not stream.bookmark:
                 logger.info('Extracting all %s' % stream.tap_stream_id)
 
+                streams.write_schema(
+                    stream.tap_stream_id,
+                    cat_entry.schema.to_dict(),
+                    streams.PK_FIELDS.get(stream.tap_stream_id, [])
+                )
                 results = self.get_alls(stream)
                 self.write_records(cat_entry.schema, results, stream)
                 self.ctx.update_cache(results, cat_entry.tap_stream_id)
@@ -117,7 +122,7 @@ class Syncer(object):
     def get_alls(self, stream, url_key=None):
         endpoint = stream.endpoint.format(url_key) if url_key else stream.endpoint
 
-        return get_results_from_payload(authed_get(
+        return get_results_from_payload(http.authed_get(
             stream.tap_stream_id, endpoint, self.ctx.config).json())
 
     def get_using_paged(self, stream, add_params=None, url_key=None):
@@ -131,12 +136,12 @@ class Syncer(object):
                 'page_size': page_size
             }
             safe_update_dict(params, add_params)
-            r = authed_get(stream.tap_stream_id,
-                           endpoint,
-                           self.ctx.config,
-                           params=params)
+            r = http.authed_get(stream.tap_stream_id,
+                               endpoint,
+                               self.ctx.config,
+                               params=params)
             yield r
-            if not end_of_records_check(r):
+            if not http.end_of_records_check(r):
                 page += 1
             else:
                 break
@@ -146,7 +151,7 @@ class Syncer(object):
         limit = 500
 
         while True:
-            r = authed_get(
+            r = http.authed_get(
                 stream.tap_stream_id,
                 stream.endpoint,
                 self.ctx.config,

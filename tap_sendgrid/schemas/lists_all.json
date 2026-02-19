@@ -2,27 +2,13 @@
   "type": "object",
   "properties": {
     "id": {
-      "type": [
-        "string"
-      ]
+      "type": ["string"]
     },
     "name": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
     "contact_count": {
-      "type": [
-        "null",
-        "integer"
-      ]
-    },
-    "_metadata": {
-      "type": [
-        "null",
-        "object"
-      ]
+      "type": ["null", "integer"]
     }
   }
 }

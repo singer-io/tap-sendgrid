@@ -5,6 +5,7 @@ from singer import bookmarks as bks_
 
 from .utils import trim_members_all, clean_for_cache
 
+
 class Context(object):
     """Represents a collection of global objects necessary for performing
     discovery or for running syncs. Notably, it contains

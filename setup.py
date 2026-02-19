@@ -13,6 +13,7 @@ setup(name='tap-sendgrid',
                         'requests==2.32.5',
                         'pendulum==3.1.0',
                         'pytz==2025.2',
+                        'backoff==2.2.1',
                         ],
       entry_points='''
           [console_scripts]

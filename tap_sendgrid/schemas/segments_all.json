@@ -2,51 +2,67 @@
   "type": "object",
   "properties": {
     "id": {
-      "type": [
-        "string"
-      ]
+      "type": ["string"]
     },
     "name": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
     "contacts_count": {
-      "type": [
-        "null",
-        "integer"
-      ]
+      "type": ["null", "integer"]
     },
     "created_at": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"],
+      "format": "date-time"
     },
     "updated_at": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"],
+      "format": "date-time"
+    },
+    "sample_updated_at": {
+      "type": ["null", "string"],
+      "format": "date-time"
+    },
+    "next_sample_update": {
+      "type": ["null", "string"],
+      "format": "date-time"
     },
     "parent_list_ids": {
-      "type": [
-        "null",
-        "array"
-      ]
+      "type": ["null", "array"],
+      "items": {
+        "type": "string"
+      }
     },
     "query_version": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
+    },
+    "_metadata": {
+      "type": ["null", "object"],
+      "properties": {
+        "next": {
+          "type": ["null", "string"]
+        },
+        "prev": {
+          "type": ["null", "string"]
+        },
+        "self": {
+          "type": ["null", "string"]
+        },
+        "count": {
+          "type": ["null", "integer"]
+        }
+      }
     },
     "status": {
-      "type": [
-        "null",
-        "object"
-      ]
+      "type": ["null", "object"],
+      "properties": {
+        "queued_at": {
+          "type": ["null", "string"],
+          "format": "date-time"
+        },
+        "error_message": {
+          "type": ["null", "string"]
+        }
+      }
     }
   }
 }

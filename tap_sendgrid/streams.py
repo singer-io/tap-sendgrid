@@ -39,7 +39,7 @@ stream_ids = [getattr(IDS, x) for x in dir(IDS)]
 PK_FIELDS = {
     IDS.GLOBAL_SUPPRESSIONS: ["email"],
     IDS.GROUPS_ALL: ["id"],
-    IDS.GROUPS_MEMBERS: ["email"],
+    IDS.GROUPS_MEMBERS: ["email", "group_id"],
     IDS.LISTS_ALL: ["id"],
     IDS.SEGMENTS_ALL: ["id"],
     IDS.TEMPLATES_ALL: ["id"],

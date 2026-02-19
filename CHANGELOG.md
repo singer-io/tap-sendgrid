@@ -14,6 +14,16 @@
     - Updated `get_results_from_payload()` to handle field definitions API format (merges reserved_fields + custom_fields arrays)
     - Added special handling for singleton resources like contacts_count (wraps single object response in array)
     - Total streams increased from 11 to 15
+    - **Added retry/backoff logic** for improved reliability:
+      - Automatic retries for rate limits (429), server errors (5xx), connection errors, and timeouts
+      - Exponential backoff with max 5 retries using `backoff` library
+      - Proper error logging and graceful degradation
+    - Added comprehensive unit test coverage:
+      - Discovery behavior tests
+      - Sync and pagination tests
+      - HTTP retry/backoff tests
+      - Marketing API stream tests
+      - State management tests
 
 ## 1.2.0
 * **BREAKING CHANGES**: Migrated from deprecated Legacy Marketing Campaigns API to SendGrid Marketing API v3

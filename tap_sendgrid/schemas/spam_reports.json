@@ -2,21 +2,17 @@
   "type": "object",
   "properties": {
     "email": {
-      "type": [
-        "string"
-      ]
+      "type": ["string"]
     },
     "created": {
-      "type": [
-        "null",
-        "integer"
-      ]
+      "type": ["null", "string"],
+      "format": "date-time"
+    },
+    "ip": {
+      "type": ["null", "string"]
     },
     "status": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     }
   }
 }
