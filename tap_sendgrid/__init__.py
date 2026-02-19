@@ -36,31 +36,28 @@ def discover(ctx):
     check_credentials_are_authorized(ctx)
     catalog = Catalog([])
     for stream in streams.STREAMS:
-        schema = streams.load_schema(stream.tap_stream_id)
-        replication_method = 'INCREMENTAL' if stream.bookmark else 'FULL_TABLE'
-        valid_replication_key = [stream.bookmark[1]] if stream.bookmark else None
+        schema = Schema.from_dict(streams.load_schema(stream.tap_stream_id),
+                                  inclusion="available")
 
         mdata = metadata.new()
 
-        mdata = metadata.get_standard_metadata(
-            schema=schema,
-            key_properties=streams.PK_FIELDS[stream.tap_stream_id],
-            replication_method=replication_method,
-            valid_replication_keys=(valid_replication_key or [])
-        )
+        replication_method = 'INCREMENTAL' if stream.bookmark else 'FULL_TABLE'
 
-        mdata = metadata.to_map(mdata)
-
+        mdata = metadata.write(mdata, (), 'forced-replication-method', replication_method)
         if stream.parent:
             mdata = metadata.write(mdata, (), 'parent-tap-stream-id', stream.parent)
 
-        mdata = metadata.write(mdata, (), 'selected', True)
+        for prop in schema.properties:
+            if prop in streams.PK_FIELDS[stream.tap_stream_id]:
+                mdata = metadata.write(mdata, ('properties', prop), 'inclusion', 'automatic')
+            else:
+                mdata = metadata.write(mdata, ('properties', prop), 'inclusion', 'available')
 
         catalog.streams.append(CatalogEntry(
             stream=stream.tap_stream_id,
             tap_stream_id=stream.tap_stream_id,
             key_properties=streams.PK_FIELDS[stream.tap_stream_id],
-            schema=Schema.from_dict(schema, inclusion="available"),
+            schema=schema,
             metadata=metadata.to_list(mdata)
         ))
     return catalog
@@ -118,9 +115,6 @@ def main_impl():
     ctx = Context(args.config, args.state)
     if args.discover:
         discover(ctx).dump()
-    elif args.catalog:
-        ctx.catalog = args.catalog
-        sync(ctx)
     else:
         ctx.catalog = Catalog.from_dict(args.properties) \
             if args.properties else discover(ctx)
