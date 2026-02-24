@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "email": {"type": ["null", "string"]},
+    "created": {"type": ["null", "integer", "string"]},
+    "ip": {"type": ["null", "string"]},
+    "useragent": {"type": ["null", "string"]}
+  }
+}

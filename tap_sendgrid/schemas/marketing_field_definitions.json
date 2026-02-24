@@ -1,0 +1,17 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": ["null", "string"]
+    },
+    "name": {
+      "type": ["null", "string"]
+    },
+    "field_type": {
+      "type": ["null", "string"]
+    },
+    "read_only": {
+      "type": ["null", "boolean"]
+    }
+  }
+}
