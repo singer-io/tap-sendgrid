@@ -1,6 +1,8 @@
-import pytest
-
-pytest.importorskip("tap_tester")
+try:
+    import tap_tester  # noqa: F401
+except ImportError as exc:
+    import unittest
+    raise unittest.SkipTest("tap_tester not available") from exc
 
 from tap_tester.base_suite_tests.interrupted_sync_test import InterruptedSyncTest
 
