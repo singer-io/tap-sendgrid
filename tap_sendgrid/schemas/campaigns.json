@@ -1,11 +1,38 @@
 {
   "type": "object",
-  "additionalProperties": true,
   "properties": {
-    "id": {"type": ["null", "integer", "string"]},
-    "title": {"type": ["null", "string"]},
-    "status": {"type": ["null", "string"]},
-    "created_at": {"type": ["null", "string"]},
-    "updated_at": {"type": ["null", "string"]}
+    "id": {
+      "type": [
+        "null",
+        "integer",
+        "string"
+      ]
+    },
+    "title": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "status": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "created_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    }
   }
 }

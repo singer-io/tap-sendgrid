@@ -1,10 +1,30 @@
 {
   "type": "object",
-  "additionalProperties": true,
   "properties": {
-    "id": {"type": ["null", "integer", "string"]},
-    "name": {"type": ["null", "string"]},
-    "description": {"type": ["null", "string"]},
-    "is_default": {"type": ["null", "boolean"]}
+    "id": {
+      "type": [
+        "null",
+        "integer",
+        "string"
+      ]
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "description": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "is_default": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    }
   }
 }

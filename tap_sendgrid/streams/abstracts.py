@@ -197,6 +197,7 @@ class IncrementalStream(OffsetPagedStream):
         if self.cursor_type == "unix" and isinstance(bookmark, str):
             bookmark = to_unix_timestamp(bookmark)
         current_max = bookmark
+        record_count = 0
 
         with metrics.record_counter(self.tap_stream_id) as counter:
             params = self.get_params_for_sync(bookmark)
@@ -211,14 +212,18 @@ class IncrementalStream(OffsetPagedStream):
                 if self.is_selected():
                     write_record(self.tap_stream_id, transformed_record)
                     counter.increment()
+                    record_count += 1
 
                 current_max = max(current_max, record_value)
                 for child in self.child_to_sync:
                     child.sync(state=state, transformer=transformer, parent_obj=record)
 
-        bk_str = datetime.fromtimestamp(current_max, tz=timezone.utc).isoformat()
+        if self.cursor_type == "unix":
+            bk_str = datetime.fromtimestamp(current_max, tz=timezone.utc).isoformat()
+        else:
+            bk_str = str(current_max)
         write_bookmark(state, self.tap_stream_id, self.replication_keys[0], bk_str)
-        return counter.value
+        return record_count
 
 
 class FullTableStream(CursorPagedStream):
@@ -230,6 +235,7 @@ class FullTableStream(CursorPagedStream):
 
     def sync(self, state: Dict, transformer: Transformer, parent_obj: Optional[Dict] = None) -> int:
         """Sync all records for a full-table stream and optionally bookmark completion time."""
+        record_count = 0
         with metrics.record_counter(self.tap_stream_id) as counter:
             for record in self.get_records(params=self.default_params(), parent_obj=parent_obj):
                 transformed_record = transformer.transform(
@@ -238,6 +244,7 @@ class FullTableStream(CursorPagedStream):
                 if self.is_selected():
                     write_record(self.tap_stream_id, transformed_record)
                     counter.increment()
+                    record_count += 1
 
                 for child in self.child_to_sync:
                     child.sync(state=state, transformer=transformer, parent_obj=record)
@@ -246,4 +253,4 @@ class FullTableStream(CursorPagedStream):
             key = self.replication_keys[0]
             write_bookmark(state, self.tap_stream_id, key, datetime.now(timezone.utc).isoformat())
 
-        return counter.value
+        return record_count

@@ -1,9 +1,25 @@
 {
   "type": "object",
-  "additionalProperties": true,
   "properties": {
-    "group_id": {"type": ["null", "integer", "string"]},
-    "recipient_email": {"type": ["null", "string"]},
-    "created": {"type": ["null", "integer", "string"]}
+    "group_id": {
+      "type": [
+        "null",
+        "integer",
+        "string"
+      ]
+    },
+    "recipient_email": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "created": {
+      "type": [
+        "null",
+        "integer",
+        "string"
+      ]
+    }
   }
 }

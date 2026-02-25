@@ -1,9 +1,23 @@
 {
   "type": "object",
-  "additionalProperties": true,
   "properties": {
-    "id": {"type": ["null", "string"]},
-    "name": {"type": ["null", "string"]},
-    "contact_count": {"type": ["null", "integer"]}
+    "id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "contact_count": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    }
   }
 }

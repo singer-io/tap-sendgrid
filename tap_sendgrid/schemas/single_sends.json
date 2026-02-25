@@ -1,10 +1,30 @@
 {
   "type": "object",
-  "additionalProperties": true,
   "properties": {
-    "id": {"type": ["null", "string"]},
-    "name": {"type": ["null", "string"]},
-    "status": {"type": ["null", "string"]},
-    "send_at": {"type": ["null", "string"]}
+    "id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "status": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "send_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    }
   }
 }

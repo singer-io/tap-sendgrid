@@ -2,19 +2,53 @@
   "type": "object",
   "properties": {
     "contact_count": {
-      "type": ["null", "integer"]
+      "type": [
+        "null",
+        "integer"
+      ]
     },
     "billable_count": {
-      "type": ["null", "integer"]
+      "type": [
+        "null",
+        "integer"
+      ]
     },
     "identifier_counts": {
-      "type": ["null", "object"],
+      "type": [
+        "null",
+        "object"
+      ],
       "properties": {
-        "email": {"type": ["null", "integer"]},
-        "alternate_emails": {"type": ["null", "integer"]},
-        "phone_number_id": {"type": ["null", "integer"]},
-        "external_id": {"type": ["null", "integer"]},
-        "anonymous_id": {"type": ["null", "integer"]}
+        "email": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "alternate_emails": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "phone_number_id": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "external_id": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "anonymous_id": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        }
       }
     }
   }
