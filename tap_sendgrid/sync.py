@@ -3,7 +3,6 @@
 Iterates registered streams in order, writes Singer SCHEMA messages, and
 drives record extraction for each selected stream.
 """
-from typing import Dict, List, Optional
 import singer
 from singer import Transformer
 
@@ -14,6 +13,7 @@ LOGGER = singer.get_logger()
 
 
 def update_currently_syncing(state, stream_name):
+    """Update the currently_syncing key in state and write it."""
     if stream_name:
         state["currently_syncing"] = stream_name
     else:
@@ -32,6 +32,7 @@ def _order_streams_for_resume(selected, state):
 
 
 def sync(client, catalog, state):
+    """Orchestrate sync for all selected streams."""
     with Transformer() as transformer:
         selected = [
             stream_id
