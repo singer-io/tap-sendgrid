@@ -19,7 +19,8 @@
         "null",
         "integer",
         "string"
-      ]
+      ],
+      "format": "date-time"
     }
   }
 }

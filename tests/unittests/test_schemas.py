@@ -38,6 +38,7 @@ EXPECTED_SCHEMAS = {
 
 # Fields whose names indicate they hold ISO 8601 datetime strings
 DATETIME_STRING_FIELD_NAMES = {
+    "created",
     "send_at",
     "created_at",
     "updated_at",
@@ -206,3 +207,22 @@ def test_senders_timestamps_are_integer():
         assert "integer" in prop["type"], f"senders.{field} should be integer (unix timestamp)"
         assert "string" not in prop["type"], f"senders.{field} should not be string type"
         assert "format" not in prop, f"senders.{field} is an int and must not have format"
+
+
+def test_incremental_suppression_created_has_datetime_format():
+    """
+    The 'created' field in suppression streams is typed as [null, integer, string].
+    The string variant represents an ISO datetime (e.g. from bookmark reads), so
+    'format: date-time' is required by the Singer spec and project conventions.
+    """
+    suppression_streams = (
+        "blocks", "bounces", "spam_reports", "invalid_emails",
+        "global_suppressions", "suppression_group_members",
+    )
+    for stream_name in suppression_streams:
+        schema = _load_schema(stream_name)
+        prop = schema["properties"]["created"]
+        assert "string" in prop["type"], f"{stream_name}.created must include string type"
+        assert prop.get("format") == "date-time", (
+            f"{stream_name}.created has string type but is missing `\"format\": \"date-time\"`"
+        )

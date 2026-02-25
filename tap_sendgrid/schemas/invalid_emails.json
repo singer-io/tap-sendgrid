@@ -12,7 +12,8 @@
         "null",
         "integer",
         "string"
-      ]
+      ],
+      "format": "date-time"
     },
     "reason": {
       "type": [
