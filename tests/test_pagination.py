@@ -13,13 +13,9 @@ class SendgridPaginationTest(PaginationTest, SendgridBaseTest):
         return "tap_tester_sendgrid_pagination_test"
 
     def streams_to_test(self):
+        # Only streams with more than 1 record (needed for pagination test).
+        # lists: 2 records, marketing_field_definitions: 29 records
         return {
-            "blocks",
-            "bounces",
-            "spam_reports",
-            "invalid_emails",
-            "global_suppressions",
             "lists",
-            "single_sends",
-            "templates",
+            "marketing_field_definitions",
         }

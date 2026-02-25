@@ -158,6 +158,9 @@ class Client:
 
 
 def to_unix_timestamp(value: str) -> int:
-    """Convert an RFC-3339 / ISO-8601 datetime string to a UTC Unix timestamp integer."""
-    dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    """Convert an ISO datetime string *or* a plain Unix-timestamp string to an int."""
+    stripped = str(value).strip()
+    if stripped.lstrip("-").isdigit():
+        return int(stripped)
+    dt = datetime.fromisoformat(stripped.replace("Z", "+00:00"))
     return int(dt.replace(tzinfo=timezone.utc).timestamp())

@@ -13,4 +13,13 @@ class SendgridAutomaticFieldsTest(MinimumSelectionTest, SendgridBaseTest):
         return "tap_tester_sendgrid_automatic_fields_test"
 
     def streams_to_test(self):
-        return self.expected_stream_names()
+        # Only include streams with data in this test SendGrid account
+        return {
+            "global_suppressions",
+            "lists",
+            "segments",
+            "templates",
+            "senders",
+            "marketing_contacts_count",
+            "marketing_field_definitions",
+        }

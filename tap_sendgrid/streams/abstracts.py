@@ -83,7 +83,7 @@ class BaseStream(ABC):
             if isinstance(response, list):
                 return response
             return []
-        return response.get(self.data_key, [])
+        return response.get(self.data_key) or []
 
     def next_page_params(self, _response: Dict[str, Any]) -> Dict[str, Any]:
         """Return pagination parameters for the next page; empty dict means no more pages."""
@@ -216,7 +216,8 @@ class IncrementalStream(OffsetPagedStream):
                 for child in self.child_to_sync:
                     child.sync(state=state, transformer=transformer, parent_obj=record)
 
-        write_bookmark(state, self.tap_stream_id, self.replication_keys[0], current_max)
+        bk_str = datetime.fromtimestamp(current_max, tz=timezone.utc).isoformat()
+        write_bookmark(state, self.tap_stream_id, self.replication_keys[0], bk_str)
         return counter.value
 
 
@@ -225,7 +226,7 @@ class FullTableStream(CursorPagedStream):
 
     def default_params(self) -> Dict[str, Any]:
         """Return the default query params, including the configured page size."""
-        return {"page_size": int(self.client.config.get("page_size", 200))}
+        return {"page_size": int(self.client.config.get("page_size", 50))}
 
     def sync(self, state: Dict, transformer: Transformer, parent_obj: Optional[Dict] = None) -> int:
         """Sync all records for a full-table stream and optionally bookmark completion time."""

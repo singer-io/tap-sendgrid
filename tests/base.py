@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timezone, timedelta
 
 from tap_tester.base_suite_tests.base_case import BaseCase
 
@@ -13,6 +14,16 @@ class SendgridBaseTest(BaseCase):
     @staticmethod
     def get_type():
         return "platform.sendgrid"
+
+    @staticmethod
+    def parse_date(date_value):
+        """Parse a date value that may be a Unix timestamp (int/str) or ISO string."""
+        if isinstance(date_value, (int, float)):
+            return datetime.fromtimestamp(int(date_value), tz=timezone.utc)
+        if isinstance(date_value, str) and date_value.strip().lstrip("-").isdigit():
+            return datetime.fromtimestamp(int(date_value.strip()), tz=timezone.utc)
+        # Delegate to parent for ISO strings
+        return BaseCase.parse_date(date_value)
 
     @classmethod
     def expected_metadata(cls):
