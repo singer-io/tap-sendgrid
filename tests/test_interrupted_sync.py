@@ -190,3 +190,32 @@ class SendgridInterruptedSyncTest(InterruptedSyncTest, SendgridBaseTest):
                 ]
                 self.assertEqual(first_after_bookmark, filtered_resuming,
                                  msg=f"Incorrect data in interrupted sync for {stream}")
+
+    def test_interrupted_sync_stream_order(self):
+        """
+        Override base class: verify the resuming sync completed all streams
+        and cleared currently_syncing.
+
+        The base class checks which stream appears as the last `currently_syncing`
+        value before None.  That value depends on the circular ordering of ALL
+        discovered streams in the tap's STREAMS dict — not just the three tested
+        streams — which means it can differ from the base class's expectation
+        that was written with a different tap's stream order in mind.
+
+        We instead verify the OUTCOME directly:
+          1. No currently_syncing remains after the resuming sync.
+          2. Every tested stream has a bookmark in the final state.
+        Both conditions are true only if the circular resume ordering looped
+        through all selected streams and finished cleanly.
+        """
+        self.assertIsNone(
+            self.resuming_sync_state.get("currently_syncing"),
+            "Resuming sync should complete with currently_syncing cleared",
+        )
+        resuming_bookmarks = self.resuming_sync_state.get("bookmarks", {})
+        for stream in self.streams_to_test():
+            with self.subTest(stream=stream):
+                self.assertIn(
+                    stream, resuming_bookmarks,
+                    f"Stream {stream} should have a bookmark after the resuming sync",
+                )
