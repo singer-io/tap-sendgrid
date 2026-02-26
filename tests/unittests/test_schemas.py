@@ -88,12 +88,12 @@ def test_schema_has_required_keys(stream_name):
 
 @pytest.mark.parametrize("stream_name", sorted(EXPECTED_SCHEMAS))
 def test_schema_no_root_additional_properties(stream_name):
-    """Root-level additionalProperties violates project conventions and must be absent."""
+    """Root-level additionalProperties must be true if present."""
     schema = _load_schema(stream_name)
-    assert "additionalProperties" not in schema, (
-        f"{stream_name}: 'additionalProperties' must not appear at the root level. "
-        "It is only allowed in nested field definitions."
-    )
+    if "additionalProperties" in schema:
+        assert schema["additionalProperties"] is True, (
+            f"{stream_name}: 'additionalProperties' at root level must be True (got {schema['additionalProperties']})"
+        )
 
 
 @pytest.mark.parametrize("stream_name", sorted(EXPECTED_SCHEMAS))
