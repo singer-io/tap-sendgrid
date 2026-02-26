@@ -182,7 +182,7 @@ Required permission scopes:
    - `api_key` (string, required): SendGrid API key (starts with `SG.`)
    - `start_date` (string, required): RFC 3339 start date for incremental streams (e.g. `2024-01-01T00:00:00Z`)
    - `request_timeout` (integer, optional): HTTP request timeout in seconds. Default is `300`.
-   - `page_size` (integer, optional): Records per page for paginated endpoints. Default is `500`.
+   - `page_size` (integer, optional): Records per page for incremental suppression streams (`blocks`, `bounces`, `spam_reports`, `invalid_emails`, `global_suppressions`). Default is `500`. Full-table marketing streams use a fixed page size of `50` regardless of this setting (SendGrid caps those endpoints at 100).
    - `lookback_window_days` (integer, optional): Days to subtract from the bookmark on each incremental run to catch late-arriving records. Default is `0`.
 
    ```json

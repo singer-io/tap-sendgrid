@@ -10,7 +10,10 @@ from base import SendgridBaseTest
 
 
 class SendgridAllFieldsTest(AllFieldsTest, SendgridBaseTest):
-    MISSING_FIELDS = {"segments": {"contact_count"}}
+    # All schema fields are expected to appear in API responses.
+    # Previously listed {"segments": {"contact_count"}} but that field was
+    # renamed to ``contacts_count`` in our schema and IS returned by the API.
+    MISSING_FIELDS = {}
 
     @staticmethod
     def name():

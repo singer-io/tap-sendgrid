@@ -240,8 +240,15 @@ class FullTableStream(CursorPagedStream):
     page_size = 50
 
     def default_params(self) -> Dict[str, Any]:
-        """Return the default query params, including the configured page size."""
-        return {"page_size": int(self.client.config.get("page_size", self.page_size))}
+        """Return the default query params using the stream's fixed page size.
+
+        Full-table streams use ``self.page_size`` (default 50) unconditionally.
+        The ``page_size`` config key is intentionally ignored here because
+        SendGrid marketing endpoints cap the limit at 100, and returning too
+        large a value causes HTTP 400 errors.  Use the class-level
+        ``page_size`` attribute to tune individual stream page sizes.
+        """
+        return {"page_size": self.page_size}
 
     def sync(self, state: Dict, transformer: Transformer, parent_obj: Optional[Dict] = None) -> int:
         """Sync all records for a full-table stream and optionally bookmark completion time."""

@@ -44,13 +44,21 @@ def get_schemas() -> Tuple[Dict, Dict]:
     return schemas, field_metadata
 
 
-def write_schema(stream, client, streams_to_sync, catalog) -> None:
-    """Write the Singer SCHEMA message for *stream* and configure child streams."""
+def write_schema(stream, client, catalog) -> None:
+    """Write the Singer SCHEMA message for *stream* and configure child streams.
+
+    A child stream is only added to the parent's ``child_to_sync`` list when
+    the child is itself selected in the catalog.  This prevents unnecessary
+    API calls to parent endpoints when neither the parent nor child is selected.
+    """
     if stream.is_selected():
         stream.write_schema()
 
     for child in stream.children:
-        child_obj = STREAMS[child](client, catalog.get_stream(child))
-        write_schema(child_obj, client, streams_to_sync, catalog)
-        if child in streams_to_sync:
+        child_entry = catalog.get_stream(child)
+        if child_entry is None:
+            continue
+        child_obj = STREAMS[child](client, child_entry)
+        write_schema(child_obj, client, catalog)
+        if child_obj.is_selected():
             stream.child_to_sync.append(child_obj)
