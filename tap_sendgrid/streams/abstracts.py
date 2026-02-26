@@ -157,6 +157,7 @@ class CursorPagedStream(BaseStream):
 class IncrementalStream(OffsetPagedStream):
     """Stream base class for incremental replication keyed on a datetime or unix cursor."""
 
+    replication_method = "INCREMENTAL"
     cursor_type = "datetime"
 
     def get_start_value(self, state: Dict) -> Any:
@@ -228,6 +229,9 @@ class IncrementalStream(OffsetPagedStream):
 
 class FullTableStream(CursorPagedStream):
     """Stream base class for full-table (non-incremental) replication."""
+
+    replication_method = "FULL_TABLE"
+    replication_keys: Tuple[str, ...] = ()
 
     def default_params(self) -> Dict[str, Any]:
         """Return the default query params, including the configured page size."""

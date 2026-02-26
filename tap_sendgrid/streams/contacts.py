@@ -13,8 +13,6 @@ class MarketingContactsCount(FullTableStream):
     """
 
     tap_stream_id = "marketing_contacts_count"
-    replication_method = "FULL_TABLE"
-    replication_keys: Tuple[str, ...] = tuple()
     key_properties: Tuple[str, ...] = tuple()
     path = "/v3/marketing/contacts/count"
     data_key = None
@@ -25,10 +23,6 @@ class MarketingContactsCount(FullTableStream):
             return [response]
         return []
 
-    def next_page_params(self, response: Any) -> None:
-        """Contacts-count endpoint returns a singleton — no pagination."""
-        return None
-
 
 class MarketingFieldDefinitions(FullTableStream):
     """Full-table stream for SendGrid marketing field definitions.
@@ -38,8 +32,6 @@ class MarketingFieldDefinitions(FullTableStream):
     """
 
     tap_stream_id = "marketing_field_definitions"
-    replication_method = "FULL_TABLE"
-    replication_keys: Tuple[str, ...] = tuple()
     key_properties: Tuple[str, ...] = ("id",)
     path = "/v3/marketing/field_definitions"
     data_key = None
@@ -51,7 +43,3 @@ class MarketingFieldDefinitions(FullTableStream):
         reserved = response.get("reserved_fields", []) or []
         custom = response.get("custom_fields", []) or []
         return list(reserved) + list(custom)
-
-    def next_page_params(self, response: Any) -> None:
-        """Field definitions endpoint returns all in one call — no pagination."""
-        return None

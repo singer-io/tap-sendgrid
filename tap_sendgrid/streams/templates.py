@@ -8,8 +8,6 @@ class Templates(FullTableStream):
     """Full-table stream for SendGrid email templates (legacy and dynamic)."""
 
     tap_stream_id = "templates"
-    replication_method = "FULL_TABLE"
-    replication_keys: Tuple[str, ...] = tuple()
     key_properties: Tuple[str, ...] = ("id",)
     path = "/v3/templates"
     data_key = "result"

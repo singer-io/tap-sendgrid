@@ -11,16 +11,10 @@ class SuppressionGroups(FullTableStream):
     """Full-table stream for SendGrid ASM suppression groups."""
 
     tap_stream_id = "suppression_groups"
-    replication_method = "FULL_TABLE"
-    replication_keys: Tuple[str, ...] = tuple()
     key_properties: Tuple[str, ...] = ("id",)
     path = "/v3/asm/groups"
     data_key = None
     children = ["suppression_group_members"]
-
-    def next_page_params(self, response: Any) -> Optional[Dict]:
-        """Return None — the ASM groups endpoint returns a plain list with no pagination."""
-        return None
 
 
 class SuppressionGroupMembers(FullTableStream):
@@ -32,18 +26,10 @@ class SuppressionGroupMembers(FullTableStream):
     """
 
     tap_stream_id = "suppression_group_members"
-    replication_method = "FULL_TABLE"
-    replication_keys: Tuple[str, ...] = tuple()
     key_properties: Tuple[str, ...] = ("group_id", "recipient_email")
     path = "/v3/asm/groups/{}/suppressions"
     data_key = None
     parent = "suppression_groups"
-
-    def get_path(self, parent_obj: Optional[Dict] = None) -> str:
-        """Format the path with the parent group ID."""
-        if parent_obj:
-            return self.path.format(parent_obj["id"])
-        return self.path
 
     def get_records(
         self,
@@ -69,7 +55,3 @@ class SuppressionGroupMembers(FullTableStream):
                     "group_id": item.get("group_id") or group_id,
                     "recipient_email": item.get("recipient_email") or item.get("email"),
                 }
-
-    def next_page_params(self, response: Any) -> Optional[Dict]:
-        """Return None — suppression members endpoint returns a plain list."""
-        return None
