@@ -27,6 +27,10 @@ class SendgridBaseTest(BaseCase):
 
     @classmethod
     def expected_metadata(cls):
+        # API_LIMIT is used by tap-tester's PaginationTest as the page_size injected
+        # into the tap during the pagination test run.  Setting it to 1 forces the tap
+        # to make one API call per record, so pagination is validated even when the
+        # test account holds as few as 2 records.  It is NOT a cap on records returned.
         return {
             "blocks": {
                 cls.PRIMARY_KEYS: {"email"},

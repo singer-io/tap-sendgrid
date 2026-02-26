@@ -28,6 +28,9 @@ class BaseStream(ABC):
 
     path = ""
     data_key = None
+    # Default page size for incremental (suppression) streams.
+    # SendGrid suppression endpoints accept up to 500 records per call.
+    # FullTableStream overrides this to 50 (conservative for marketing APIs).
     page_size = 500
     page_size_param = "limit"
     page_offset_param = "offset"
@@ -232,10 +235,13 @@ class FullTableStream(CursorPagedStream):
 
     replication_method = "FULL_TABLE"
     replication_keys: Tuple[str, ...] = ()
+    # Most SendGrid marketing/transactional endpoints cap page_size at 100;
+    # 50 is a safe conservative default.  Subclasses may override as needed.
+    page_size = 50
 
     def default_params(self) -> Dict[str, Any]:
         """Return the default query params, including the configured page size."""
-        return {"page_size": int(self.client.config.get("page_size", 50))}
+        return {"page_size": int(self.client.config.get("page_size", self.page_size))}
 
     def sync(self, state: Dict, transformer: Transformer, parent_obj: Optional[Dict] = None) -> int:
         """Sync all records for a full-table stream and optionally bookmark completion time."""
