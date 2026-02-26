@@ -10,10 +10,8 @@
     "created": {
       "type": [
         "null",
-        "integer",
-        "string"
-      ],
-      "format": "date-time"
+        "integer"
+      ]
     },
     "reason": {
       "type": [

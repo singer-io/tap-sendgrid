@@ -19,31 +19,25 @@
         "object"
       ],
       "properties": {
-        "email": {
+        "AID": {
           "type": [
             "null",
             "integer"
           ]
         },
-        "alternate_emails": {
+        "EID": {
           "type": [
             "null",
             "integer"
           ]
         },
-        "phone_number_id": {
+        "EXTID": {
           "type": [
             "null",
             "integer"
           ]
         },
-        "external_id": {
-          "type": [
-            "null",
-            "integer"
-          ]
-        },
-        "anonymous_id": {
+        "PHNID": {
           "type": [
             "null",
             "integer"

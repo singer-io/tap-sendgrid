@@ -92,8 +92,22 @@
     "verified": {
       "type": [
         "null",
-        "boolean"
-      ]
+        "object"
+      ],
+      "properties": {
+        "status": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "reason": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
     },
     "locked": {
       "type": [

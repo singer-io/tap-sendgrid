@@ -13,14 +13,6 @@
         "null",
         "string"
       ]
-    },
-    "created": {
-      "type": [
-        "null",
-        "integer",
-        "string"
-      ],
-      "format": "date-time"
     }
   }
 }

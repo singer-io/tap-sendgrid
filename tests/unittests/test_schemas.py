@@ -19,7 +19,6 @@ SCHEMAS_DIR = os.path.join(
 EXPECTED_SCHEMAS = {
     "blocks",
     "bounces",
-    "campaigns",
     "global_suppressions",
     "invalid_emails",
     "lists",
@@ -46,6 +45,8 @@ DATETIME_STRING_FIELD_NAMES = {
     "scheduled_at",
     "start_date",
     "end_date",
+    "sample_updated_at",
+    "next_sample_update",
 }
 
 
@@ -162,15 +163,6 @@ def test_all_expected_schema_files_present():
     assert not missing, f"Missing schema files: {missing}"
 
 
-def test_specific_datetime_fields_campaigns():
-    """campaigns.json created_at and updated_at must be date-time strings."""
-    schema = _load_schema("campaigns")
-    for field in ("created_at", "updated_at"):
-        prop = schema["properties"][field]
-        assert "string" in prop["type"], f"campaigns.{field} should include string type"
-        assert prop.get("format") == "date-time", f"campaigns.{field} must have format: date-time"
-
-
 def test_specific_datetime_fields_templates():
     """templates.json updated_at must be a date-time string."""
     schema = _load_schema("templates")
@@ -190,8 +182,7 @@ def test_specific_datetime_fields_single_sends():
 def test_incremental_streams_created_field_is_integer_or_string():
     """
     Incremental suppression streams return Unix timestamps in 'created'.
-    The field type must include 'integer' (raw API value) and 'string'
-    (bookmarked ISO string that may come back via the Transformer).
+    The field type must include 'integer' (raw API value).
     """
     for stream_name in ("blocks", "bounces", "spam_reports", "invalid_emails", "global_suppressions"):
         schema = _load_schema(stream_name)
@@ -209,20 +200,60 @@ def test_senders_timestamps_are_integer():
         assert "format" not in prop, f"senders.{field} is an int and must not have format"
 
 
-def test_incremental_suppression_created_has_datetime_format():
+def test_incremental_suppression_created_is_integer_only():
     """
-    The 'created' field in suppression streams is typed as [null, integer, string].
-    The string variant represents an ISO datetime (e.g. from bookmark reads), so
-    'format: date-time' is required by the Singer spec and project conventions.
+    The 'created' field in incremental suppression streams is a Unix integer timestamp.
+    It must NOT have 'format: date-time' (which would cause Singer SchemaMismatch when
+    transforming integer values) and must NOT include 'string' in its type.
     """
-    suppression_streams = (
-        "blocks", "bounces", "spam_reports", "invalid_emails",
-        "global_suppressions", "suppression_group_members",
-    )
-    for stream_name in suppression_streams:
+    for stream_name in ("blocks", "bounces", "spam_reports", "invalid_emails", "global_suppressions"):
         schema = _load_schema(stream_name)
         prop = schema["properties"]["created"]
-        assert "string" in prop["type"], f"{stream_name}.created must include string type"
-        assert prop.get("format") == "date-time", (
-            f"{stream_name}.created has string type but is missing `\"format\": \"date-time\"`"
+        assert "integer" in prop["type"], f"{stream_name}.created must include integer type"
+        assert "string" not in prop["type"], (
+            f"{stream_name}.created must NOT include string type — "
+            "the API returns Unix integer timestamps, not ISO strings"
         )
+        assert "format" not in prop, (
+            f"{stream_name}.created is a Unix integer and must NOT carry format: date-time. "
+            "Having format on integer values causes Singer SchemaMismatch."
+        )
+
+
+def test_suppression_group_members_has_no_created_field():
+    """
+    The ASM suppressions endpoint returns a list of email strings — there is no
+    'created' timestamp.  The schema must not declare a 'created' property.
+    """
+    schema = _load_schema("suppression_group_members")
+    assert "created" not in schema["properties"], (
+        "suppression_group_members.created must be removed: "
+        "the API returns email strings with no timestamp field"
+    )
+
+
+def test_segments_has_contacts_count_not_contact_count():
+    """Segments API returns 'contacts_count' (not 'contact_count')."""
+    schema = _load_schema("segments")
+    assert "contacts_count" in schema["properties"], "segments schema must have 'contacts_count'"
+    assert "contact_count" not in schema["properties"], (
+        "segments schema must NOT have 'contact_count' (wrong field name from API)"
+    )
+
+
+def test_senders_verified_is_object():
+    """Senders API returns verified as {status: bool, reason: null|str} — not a boolean."""
+    schema = _load_schema("senders")
+    prop = schema["properties"]["verified"]
+    assert "object" in prop["type"], "senders.verified must be type object"
+    assert "properties" in prop, "senders.verified must have nested properties"
+    assert "status" in prop["properties"]
+    assert "reason" in prop["properties"]
+
+
+def test_marketing_contacts_count_identifier_keys():
+    """marketing_contacts_count identifier_counts must use real API field names: AID, EID, EXTID, PHNID."""
+    schema = _load_schema("marketing_contacts_count")
+    id_props = schema["properties"]["identifier_counts"]["properties"]
+    for key in ("AID", "EID", "EXTID", "PHNID"):
+        assert key in id_props, f"marketing_contacts_count.identifier_counts missing field '{key}'"

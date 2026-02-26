@@ -2,7 +2,7 @@
 
 Covers: ``suppression_groups`` (parent) and ``suppression_group_members`` (child).
 """
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterable, Optional, Tuple
 
 from tap_sendgrid.streams.abstracts import FullTableStream
 
@@ -20,12 +20,16 @@ class SuppressionGroups(FullTableStream):
 
     def next_page_params(self, response: Any) -> Optional[Dict]:
         """Return None — the ASM groups endpoint returns a plain list with no pagination."""
-        # ASM groups endpoint returns a plain list — no pagination
         return None
 
 
 class SuppressionGroupMembers(FullTableStream):
-    """Full-table child stream for members of each SendGrid ASM suppression group."""
+    """Full-table child stream for members of each SendGrid ASM suppression group.
+
+    The endpoint ``GET /v3/asm/groups/{group_id}/suppressions`` returns a plain
+    list of email address strings.  ``get_records`` is overridden to inject the
+    parent ``group_id`` into each record dict.
+    """
 
     tap_stream_id = "suppression_group_members"
     replication_method = "FULL_TABLE"
@@ -41,19 +45,31 @@ class SuppressionGroupMembers(FullTableStream):
             return self.path.format(parent_obj["id"])
         return self.path
 
-    def parse_records(self, response: Any) -> List[Dict]:
-        """Flatten the suppression list response into dicts with a ``group_id`` field."""
-        records = []
+    def get_records(
+        self,
+        params: Optional[Dict[str, Any]] = None,
+        parent_obj: Optional[Dict[str, Any]] = None,
+    ) -> Iterable[Dict[str, Any]]:
+        """Fetch suppressions for the parent group and yield normalised record dicts.
+
+        The API returns a JSON array of email strings; this method wraps each
+        email into a ``{group_id, recipient_email}`` dict.
+        """
+        group_id = parent_obj["id"] if parent_obj else None
+        response = self.client.get(
+            self.get_path(parent_obj),
+            params=params,
+            stream_name=self.tap_stream_id,
+        )
         for item in response if isinstance(response, list) else []:
-            records.append(
-                {
-                    "group_id": item.get("group_id"),
+            if isinstance(item, str):
+                yield {"group_id": group_id, "recipient_email": item}
+            elif isinstance(item, dict):
+                yield {
+                    "group_id": item.get("group_id") or group_id,
                     "recipient_email": item.get("recipient_email") or item.get("email"),
-                    "created": item.get("created"),
                 }
-            )
-        return records
 
     def next_page_params(self, response: Any) -> Optional[Dict]:
-        # Suppression members endpoint returns a plain list — no pagination
+        """Return None — suppression members endpoint returns a plain list."""
         return None
