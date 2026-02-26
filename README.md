@@ -201,16 +201,16 @@ Required permission scopes:
    {
      "currently_syncing": "blocks",
      "bookmarks": {
-       "blocks":              { "created": 1704067200 },
-       "bounces":             { "created": 1704068200 },
-       "spam_reports":        { "created": 1704069200 },
-       "invalid_emails":      { "created": 1704070200 },
-       "global_suppressions": { "created": 1704071200 }
+       "blocks":              { "created": "2024-01-01T00:00:00+00:00" },
+       "bounces":             { "created": "2024-01-01T00:00:00+00:00" },
+       "spam_reports":        { "created": "2024-01-01T00:00:00+00:00" },
+       "invalid_emails":      { "created": "2024-01-01T00:00:00+00:00" },
+       "global_suppressions": { "created": "2024-01-01T00:00:00+00:00" }
      }
    }
    ```
 
-   The `created` bookmark stores a **Unix timestamp** (integer). Incremental streams resume from the last saved bookmark value.
+   The `created` bookmark stores an **ISO 8601 datetime string** (UTC). Incremental streams resume from the last saved bookmark value.
 
 4. **Run the Tap in Discovery Mode**
 
