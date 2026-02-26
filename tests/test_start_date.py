@@ -1,7 +1,8 @@
+import unittest
+
 try:
     import tap_tester  # noqa: F401
 except ImportError as exc:
-    import unittest
     raise unittest.SkipTest("tap_tester not available") from exc
 
 from tap_tester.base_suite_tests.start_date_test import StartDateTest
@@ -15,124 +16,80 @@ class SendgridStartDateTest(StartDateTest, SendgridBaseTest):
         return "tap_tester_sendgrid_start_date_test"
 
     def streams_to_test(self):
-        # global_suppressions is the only INCREMENTAL stream with actual data.
-        # Full-table streams cannot be used because the base-class
-        # test_replication_key_values asserts len(replication_keys) == 1.
+        # Only INCREMENTAL streams are valid here; full-table streams have no replication key.
         return {"global_suppressions"}
 
     @property
     def start_date_1(self):
-        # The global_suppressions record was created at 2026-02-04
-        # Both start dates are before this so both syncs return that 1 record.
+        # Both dates precede the single CI-account record (2026-02-04) so each sync returns it.
         return "2024-01-01T00:00:00Z"
 
     @property
     def start_date_2(self):
-        # Also before the 2026-02-04 record, so sync 2 also returns that record.
         return "2025-01-01T00:00:00Z"
 
     def test_replicated_records(self):
-        """
-        Override to use assertGreaterEqual instead of assertGreater.
-
-        The base-class asserts sync_1_count > sync_2_count for OBEYS_START_DATE
-        streams. However, with only 1 record in this test account and both start
-        dates preceding that record, syn1 and sync2 will have the same count (1).
-        We relax this to assertGreaterEqual.
-        """
+        # Relaxed to assertGreaterEqual: with 1 record both syncs return 1 so sync1 == sync2.
         for stream in self.streams_to_test():
             with self.subTest(stream=stream):
+                pks = self.expected_primary_keys(stream)
+                rep_key = next(iter(self.expected_replication_keys(stream)))
+                obeys = self.expected_start_date_behavior(stream)
 
-                expected_primary_keys = self.expected_primary_keys(stream)
-                stream_obeys_start_date = self.expected_start_date_behavior(stream)
+                count_1 = StartDateTest.record_count_by_stream_1.get(stream, 0)
+                count_2 = StartDateTest.record_count_by_stream_2.get(stream, 0)
 
-                record_count_sync_1 = StartDateTest.record_count_by_stream_1.get(stream, 0)
-                record_count_sync_2 = StartDateTest.record_count_by_stream_2.get(stream, 0)
-
-                expected_replication_keys = self.expected_replication_keys(stream)
-                assert len(expected_replication_keys) == 1
-                expected_replication_key = next(iter(expected_replication_keys))
-
-                replication_dates_1 = {
-                    record["data"].get(expected_replication_key)
-                    for record in StartDateTest.synced_messages_by_stream_1.get(stream, {}).get("messages", [])
-                    if record.get("action") == "upsert"
+                dates_1 = {
+                    m["data"].get(rep_key)
+                    for m in StartDateTest.synced_messages_by_stream_1.get(stream, {}).get("messages", [])
+                    if m.get("action") == "upsert"
+                }
+                pk_set_2 = {
+                    tuple(m["data"][k] for k in pks)
+                    for m in StartDateTest.synced_messages_by_stream_2.get(stream, {}).get("messages", [])
+                    if m.get("action") == "upsert"
+                    and self.parse_date(m["data"][rep_key]) <= self.parse_date(max(dates_1))
                 }
 
-                # All pks in sync 2 except those added after sync 1 completed
-                primary_keys_sync_2 = {
-                    tuple(message["data"][expected_pk] for expected_pk in expected_primary_keys)
-                    for message in StartDateTest.synced_messages_by_stream_2.get(stream, {}).get("messages", [])
-                    if message.get("action") == "upsert"
-                    and self.parse_date(message["data"][expected_replication_key])
-                    <= self.parse_date(max(replication_dates_1))
-                }
-
-                if stream_obeys_start_date:
-                    # Records in sync 1 that should have been synced in sync 2
-                    primary_keys_sync_1 = {
-                        tuple(message["data"][expected_pk] for expected_pk in expected_primary_keys)
-                        for message in StartDateTest.synced_messages_by_stream_1.get(stream, {}).get("messages", [])
-                        if message.get("action") == "upsert"
-                        and self.parse_date(message["data"][expected_replication_key])
-                        >= self.parse_date(self.start_date_2)
+                if obeys:
+                    pk_set_1 = {
+                        tuple(m["data"][k] for k in pks)
+                        for m in StartDateTest.synced_messages_by_stream_1.get(stream, {}).get("messages", [])
+                        if m.get("action") == "upsert"
+                        and self.parse_date(m["data"][rep_key]) >= self.parse_date(self.start_date_2)
                     }
-
-                    # RELAXED: sync1 >= sync2 (base uses strict >, but we have
-                    # only 1 record so both return the same count)
-                    self.assertGreaterEqual(
-                        record_count_sync_1, record_count_sync_2,
-                        msg=(
-                            f"Expected sync1 record count ({record_count_sync_1}) "
-                            f">= sync2 record count ({record_count_sync_2}) for stream {stream}"
-                        )
-                    )
-
-                    # All sync2 pks are present in sync1
-                    self.assertSetEqual(primary_keys_sync_1, primary_keys_sync_2)
+                    self.assertGreaterEqual(count_1, count_2)
+                    self.assertSetEqual(pk_set_1, pk_set_2)
                 else:
-                    primary_keys_sync_1 = {
-                        tuple(message["data"][expected_pk] for expected_pk in expected_primary_keys)
-                        for message in StartDateTest.synced_messages_by_stream_1.get(stream, {}).get("messages", [])
-                        if message.get("action") == "upsert"
+                    pk_set_1 = {
+                        tuple(m["data"][k] for k in pks)
+                        for m in StartDateTest.synced_messages_by_stream_1.get(stream, {}).get("messages", [])
+                        if m.get("action") == "upsert"
                     }
-                    self.assertSetEqual(primary_keys_sync_1, primary_keys_sync_2)
+                    self.assertSetEqual(pk_set_1, pk_set_2)
 
     def test_both_syncs_got_data(self):
-        """Override: skip streams with no records (test account may be empty)."""
         for stream in self.streams_to_test():
             count_1 = StartDateTest.record_count_by_stream_1.get(stream, 0)
             count_2 = StartDateTest.record_count_by_stream_2.get(stream, 0)
             if count_1 == 0 and count_2 == 0:
-                continue  # No data available — skip rather than fail
+                continue
             with self.subTest(stream=stream):
-                self.assertGreater(
-                    count_1 + count_2, 0,
-                    f"Expected at least one record across both syncs for {stream}",
-                )
+                self.assertGreater(count_1 + count_2, 0)
 
     def test_replication_key_values(self):
-        """Override: skip streams with no records (test account may be empty)."""
         for stream in self.streams_to_test():
-            replication_keys = self.expected_replication_keys(stream)
-            assert len(replication_keys) == 1
-            replication_key = next(iter(replication_keys))
-
+            rep_key = next(iter(self.expected_replication_keys(stream)))
             records_1 = [
                 msg["data"]
                 for msg in StartDateTest.synced_messages_by_stream_1.get(stream, {}).get("messages", [])
                 if msg.get("action") == "upsert"
             ]
             if not records_1:
-                continue  # No records — cannot validate replication key values
-
+                continue
             with self.subTest(stream=stream):
                 for record in records_1:
                     self.assertGreaterEqual(
-                        self.parse_date(record[replication_key]),
+                        self.parse_date(record[rep_key]),
                         self.parse_date(self.start_date_1),
-                        msg=(
-                            f"{stream}: replication key value {record[replication_key]!r} "
-                            f"is before start_date_1 {self.start_date_1!r}"
-                        ),
                     )
