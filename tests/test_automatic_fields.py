@@ -33,3 +33,14 @@ class SendgridAutomaticFieldsTest(MinimumSelectionTest, SendgridBaseTest):
                 continue  # No data for this stream in the CI test account
             with self.subTest(stream=stream):
                 self.assertGreater(count, 0)
+
+    def test_only_automatic_fields_replicated(self):
+        """Override: skip streams with no records (fields cannot be verified without data)."""
+        for stream in self.streams_to_test():
+            count = MinimumSelectionTest.record_count.get(stream, 0)
+            if count == 0:
+                continue  # No records — nothing to check field inclusion against
+            with self.subTest(stream=stream):
+                expected_automatic_fields = self.expected_automatic_fields(stream)
+                fields_replicated = set(MinimumSelectionTest.actual_field.get(stream, []))
+                self.assertSetEqual(fields_replicated, expected_automatic_fields)
