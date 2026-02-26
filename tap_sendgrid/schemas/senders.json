@@ -127,5 +127,6 @@
         "integer"
       ]
     }
-  }
+  },
+  "additionalProperties": true
 }
