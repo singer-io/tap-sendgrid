@@ -36,7 +36,6 @@ jobs:
           command: |
             source /usr/local/share/virtualenvs/tap-tester/bin/activate
             uv pip install --upgrade awscli
-            uv pip install git+https://github.com/singer-io/tap-tester.git@SAC-27209-in-memory-backend-without-target
             uv pip install .
             uv pip install pytest
             aws s3 cp s3://com-stitchdata-dev-deployment-assets/environments/tap-tester/tap_tester_sandbox dev_env.sh
