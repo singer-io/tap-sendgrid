@@ -1,12 +1,6 @@
 """Integration tests for tap-sendgrid pagination."""
-import unittest
-
-try:
-    from tap_tester.base_suite_tests.pagination_test import PaginationTest
-except ImportError as exc:
-    raise unittest.SkipTest("tap_tester not available") from exc
-
-from base import SendgridBaseTest  # pylint: disable=import-error
+from base import SendgridBaseTest
+from tap_tester.base_suite_tests.pagination_test import PaginationTest
 
 
 class SendgridPaginationTest(PaginationTest, SendgridBaseTest):
@@ -18,33 +12,19 @@ class SendgridPaginationTest(PaginationTest, SendgridBaseTest):
         return "tap_tester_sendgrid_pagination_test"
 
     def streams_to_test(self):
-        """Return streams to test (marketing endpoints return 403 on free-tier)."""
-        return {"senders", "templates"}
+        """Return streams that consistently have multi-page data."""
+        return {"lists", "marketing_field_definitions"}
 
-    def test_record_count_greater_than_page_limit(self):
-        """Verify record counts exceed page limit when data exists."""
-        for stream in self.streams_to_test():
-            count = PaginationTest.record_count_by_stream.get(stream, 0)
-            limit = self.expected_metadata()[stream][self.API_LIMIT]
-            if count <= limit:
-                continue
-            with self.subTest(stream=stream):
-                self.assertGreater(count, limit)
+    def excluded_stream_reasons(self):
+        """Return documented reasons for streams excluded from this test."""
+        included = self.streams_to_test()
+        excluded = self.expected_stream_names().difference(included)
+        return {
+            stream: "Excluded: pagination assertion requires record_count > page_size in account."
+            for stream in excluded
+        }
 
-    def test_no_duplicate_records(self):
-        """Verify no duplicate records are returned."""
-        for stream in self.streams_to_test():
-            if PaginationTest.record_count_by_stream.get(stream, 0) == 0:
-                continue
-            with self.subTest(stream=stream):
-                # pylint: disable=unsubscriptable-object
-                self.assertGreater(PaginationTest.record_count_by_stream[stream], 0)
-
-    def test_no_skipped_records(self):
-        """Verify no records are skipped during pagination."""
-        for stream in self.streams_to_test():
-            if PaginationTest.record_count_by_stream.get(stream, 0) == 0:
-                continue
-            with self.subTest(stream=stream):
-                # pylint: disable=unsubscriptable-object
-                self.assertGreater(PaginationTest.record_count_by_stream[stream], 0)
+    def test_excluded_streams_are_documented(self):
+        """Verify each excluded stream has a documented reason."""
+        excluded = self.expected_stream_names().difference(self.streams_to_test())
+        self.assertSetEqual(excluded, set(self.excluded_stream_reasons().keys()))

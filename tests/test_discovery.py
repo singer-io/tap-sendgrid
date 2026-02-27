@@ -1,12 +1,6 @@
 """Integration tests for tap-sendgrid stream discovery."""
-import unittest
-
-try:
-    from tap_tester.base_suite_tests.discovery_test import DiscoveryTest
-except ImportError as exc:
-    raise unittest.SkipTest("tap_tester not available") from exc
-
-from base import SendgridBaseTest  # pylint: disable=import-error
+from base import SendgridBaseTest
+from tap_tester.base_suite_tests.discovery_test import DiscoveryTest
 
 
 class SendgridDiscoveryTest(DiscoveryTest, SendgridBaseTest):
