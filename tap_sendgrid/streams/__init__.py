@@ -23,8 +23,11 @@ from tap_sendgrid.streams.suppression import (
 from tap_sendgrid.streams.suppression_groups import SuppressionGroupMembers, SuppressionGroups
 from tap_sendgrid.streams.templates import Templates
 
-# Parent streams must appear before their children so that the sync loop
-# drives child sync through the parent's child_to_sync list.
+# WARNING: Ordering in STREAMS is load-bearing.
+# Parent streams MUST appear before their children so that the sync loop
+# drives child sync through the parent's child_to_sync list.  Re-ordering
+# entries here without adjusting the parent/child relationship will silently
+# break child-stream sync (the child will never be synced).
 STREAMS = {
     "blocks": Blocks,
     "bounces": Bounces,

@@ -123,18 +123,47 @@ class BaseStream(ABC):
 
 
 class OffsetPagedStream(BaseStream):
-    """Stream base class that paginates via an integer offset parameter."""
+    """Stream base class that paginates via an integer offset parameter.
 
-    def next_page_params(self, response: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """Return offset-based params for the next page, or ``None`` when exhausted."""
-        if not isinstance(response, dict):
-            return None
-        current_offset = int(response.get("offset", 0))
-        page_size = int(response.get("limit", self.page_size))
-        records = list(self.parse_records(response))
-        if len(records) < page_size:
-            return None
-        return {self.page_offset_param: current_offset + page_size}
+    Overrides ``get_records`` to track the running offset directly in the
+    outgoing request params rather than deriving it from the response body.
+    This correctly handles both:
+
+    * **Dict** responses (e.g. ``{"result": [...], "offset": 0, "limit": 500}``)
+      where ``data_key`` points to the record list.
+    * **List** responses (e.g. suppression streams — ``/v3/suppression/blocks``)
+      where the API returns a bare JSON array with no envelope to inspect.
+
+    The previous ``next_page_params`` approach returned ``None`` for list
+    responses (``not isinstance(response, dict)`` was always ``True``), which
+    silently stopped pagination after the first page.
+    """
+
+    def get_records(
+        self,
+        params: Optional[Dict[str, Any]] = None,
+        parent_obj: Optional[Dict[str, Any]] = None,
+    ) -> Iterable[Dict[str, Any]]:
+        """Iterate over pages by tracking the offset in the outgoing request params."""
+        current_params = dict(params or {})
+        if self.page_offset_param not in current_params:
+            current_params[self.page_offset_param] = 0
+        page_size = int(current_params.get(self.page_size_param, self.page_size))
+        max_pages = 10_000
+        page_count = 0
+        while page_count < max_pages:
+            page_count += 1
+            response = self.client.get(
+                self.get_path(parent_obj),
+                params=current_params,
+                stream_name=self.tap_stream_id,
+            )
+            records = list(self.parse_records(response))
+            yield from records
+            if len(records) < page_size:
+                break
+            current_offset = int(current_params.get(self.page_offset_param, 0))
+            current_params[self.page_offset_param] = current_offset + page_size
 
 
 class CursorPagedStream(BaseStream):

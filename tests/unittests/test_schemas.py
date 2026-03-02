@@ -144,7 +144,8 @@ def test_schema_nullable_fields(stream_name):
 def test_schema_utf8_encoding(stream_name):
     """Schema file must be readable as valid UTF-8 with no BOM."""
     path = os.path.join(SCHEMAS_DIR, f"{stream_name}.json")
-    raw = open(path, "rb").read()
+    with open(path, "rb") as fh:
+        raw = fh.read()
     assert not raw.startswith(b"\xff\xfe") and not raw.startswith(
         b"\xfe\xff"
     ), f"{stream_name}: file has a UTF-16 BOM"
@@ -190,14 +191,19 @@ def test_incremental_streams_created_field_is_integer_or_string():
         assert "integer" in field_type, f"{stream_name}.created must allow integer"
 
 
-def test_senders_timestamps_are_integer():
-    """Senders created_at and updated_at are Unix integer timestamps, not ISO strings."""
+def test_senders_timestamps_are_iso_strings():
+    """Senders created_at and updated_at are normalised to ISO-8601 strings by the tap.
+
+    The SendGrid API returns unix integer timestamps; ``Senders.get_records``
+    converts them to ISO-8601 before emission.  The schema must therefore
+    declare these fields as string/date-time rather than integer.
+    """
     schema = _load_schema("senders")
     for field in ("created_at", "updated_at"):
         prop = schema["properties"][field]
-        assert "integer" in prop["type"], f"senders.{field} should be integer (unix timestamp)"
-        assert "string" not in prop["type"], f"senders.{field} should not be string type"
-        assert "format" not in prop, f"senders.{field} is an int and must not have format"
+        assert "string" in prop["type"], f"senders.{field} should be string (ISO-8601 after tap normalisation)"
+        assert "integer" not in prop["type"], f"senders.{field} should not be integer type in the emitted schema"
+        assert prop.get("format") == "date-time", f"senders.{field} must have format: date-time"
 
 
 def test_incremental_suppression_created_is_integer_only():

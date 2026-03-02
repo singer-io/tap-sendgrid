@@ -3,6 +3,7 @@ from unittest.mock import patch
 import pytest
 
 from tap_sendgrid.client import Client, _parse_retry_after
+from tap_sendgrid.exceptions import SendgridRateLimitError
 
 
 def test_parse_retry_after_int():
@@ -32,5 +33,5 @@ def test_client_rate_limit_retry_after(mock_request):
 
     client = Client({"api_key": "abc", "start_date": "2024-01-01T00:00:00Z"})
 
-    with pytest.raises(Exception):
+    with pytest.raises(SendgridRateLimitError):
         client.get("/v3/marketing/lists")

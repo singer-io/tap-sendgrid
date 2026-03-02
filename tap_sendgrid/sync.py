@@ -6,7 +6,7 @@ drives record extraction for each selected stream.
 import singer
 from singer import Transformer
 
-from tap_sendgrid.schema import write_schema
+from tap_sendgrid.schema import setup_stream_schema
 from tap_sendgrid.streams import STREAMS
 
 LOGGER = singer.get_logger()
@@ -52,7 +52,7 @@ def sync(client, catalog, state):
             stream_class = STREAMS[stream_id]
             catalog_entry = catalog.get_stream(stream_id)
             stream_obj = stream_class(client, catalog_entry)
-            write_schema(stream_obj, client, catalog)
+            setup_stream_schema(stream_obj, client, catalog)
             if not stream_obj.is_selected() and not stream_obj.child_to_sync:
                 LOGGER.info("Stream %s not selected - skipping", stream_id)
                 continue

@@ -11,13 +11,14 @@ from tap_sendgrid.streams.abstracts import (
 
 
 class FakeCatalog:
-    schema = SimpleNamespace(
-        to_dict=lambda: {
-            "type": "object",
-            "properties": {"updated_at": {"type": ["string", "null"]}},
-        }
-    )
-    metadata = [{"breadcrumb": [], "metadata": {"selected": True}}]
+    def __init__(self):
+        self.schema = SimpleNamespace(
+            to_dict=lambda: {
+                "type": "object",
+                "properties": {"updated_at": {"type": ["string", "null"]}},
+            }
+        )
+        self.metadata = [{"breadcrumb": [], "metadata": {"selected": True}}]
 
 
 class DummyIncremental(IncrementalStream):
@@ -100,10 +101,10 @@ def test_full_table_sync_writes_records():
 
 
 def test_abstract_base_and_pagination_helpers():
-    assert BaseStream.tap_stream_id.fget(None) is None
-    assert BaseStream.replication_method.fget(None) is None
-    assert BaseStream.replication_keys.fget(None) is None
-    assert BaseStream.key_properties.fget(None) is None
+    import inspect  # pylint: disable=import-outside-toplevel
+
+    # BaseStream is abstract; it cannot be instantiated directly.
+    assert inspect.isabstract(BaseStream), "BaseStream must be abstract"
     assert BaseStream.sync(None, None, None) is None
 
     offset_stream = DummyIncremental(
@@ -113,7 +114,7 @@ def test_abstract_base_and_pagination_helpers():
         FakeCatalog(),
     )
     assert isinstance(offset_stream, OffsetPagedStream)
-    assert offset_stream.next_page_params([{"id": 1}]) is None
+    # OffsetPagedStream overrides get_records; it does not override next_page_params.
 
     cursor_stream = DummyCursor(_client_with_responses([]), FakeCatalog())
     assert cursor_stream.next_page_params({"_metadata": {}}) is None

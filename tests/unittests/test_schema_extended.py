@@ -34,7 +34,7 @@ def test_write_schema_collects_child_streams():
     original_streams = schema_module.STREAMS
     schema_module.STREAMS = {"child_stream": ChildStream}
     try:
-        schema_module.write_schema(parent, client=MagicMock(), catalog=catalog)
+        schema_module.setup_stream_schema(parent, client=MagicMock(), catalog=catalog)
         assert len(parent.child_to_sync) == 1
     finally:
         schema_module.STREAMS = original_streams

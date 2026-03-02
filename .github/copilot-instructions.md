@@ -60,7 +60,10 @@ Prefer explicit schemas:
 - All files under schemas/*.json must follow the JSON Schema standard.
 - Any fields named created_time, modified_time, ending in _time or ending in _date must use the date-time format.
 - Any fields looks like date-time field, give suggestion to validate the fields should have date-time format.
-- Avoid using additionalProperties at the root level. It's allowed in nested fields only.
+- `additionalProperties: true` is acceptable at the root level when the API may return
+  undocumented fields; prefer explicit properties for known fields in addition to the flag.
+- `additionalProperties: false` at root level should be **avoided** — it will cause Singer
+  to reject records containing any field not listed in the schema.
 
 Example:
 {

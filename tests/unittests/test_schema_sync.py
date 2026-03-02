@@ -59,7 +59,7 @@ def test_update_currently_syncing_sets_and_clears():
         assert write_state.call_count == 2
 
 
-@patch.object(sync_module, "write_schema")
+@patch.object(sync_module, "setup_stream_schema")
 def test_sync_runs_selected_stream(write_schema_mock):
     client = MagicMock()
     catalog = FakeCatalog()

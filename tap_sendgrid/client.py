@@ -40,7 +40,11 @@ def _parse_retry_after(headers: Mapping[str, str]) -> Optional[int]:
 
 
 def _raise_for_error(response: requests.Response) -> None:
-    """Raise the appropriate ``SendgridError`` subclass for non-2xx responses."""
+    """Raise the appropriate ``SendgridError`` subclass for non-2xx responses.
+
+    Note: 429 rate-limit responses are handled *before* this function is called
+    (see ``Client.request``).  This function will never receive a 429.
+    """
     if response.status_code in (200, 201, 202, 204):
         return
 
@@ -50,11 +54,7 @@ def _raise_for_error(response: requests.Response) -> None:
     if not exc:
         exc = SendgridError
 
-    response_text = response.text[:500]
-    if response.status_code == 429:
-        raise SendgridRateLimitError(response_text)
-
-    raise exc(f"HTTP {response.status_code}: {response_text}")
+    raise exc(f"HTTP {response.status_code}: {response.text[:500]}")
 
 
 class Client:
@@ -63,7 +63,7 @@ class Client:
     def __init__(self, config: Mapping[str, Any]) -> None:
         self.config = config
         self.base_url = config.get("api_base_url", DEFAULT_BASE_URL)
-        self.request_timeout = int(config.get("request_timeout", DEFAULT_TIMEOUT))
+        self.request_timeout = max(int(config.get("request_timeout", DEFAULT_TIMEOUT)), 1)
         self.api_key = config.get("api_key")
         self.use_mock_data = bool(config.get("use_mock_data", False))
         self.mock_data_path = config.get("mock_data_path")
@@ -88,7 +88,7 @@ class Client:
             headers.update(extra)
         return headers
 
-    def _mock_response(self, stream_name: str) -> Dict[str, Any]:
+    def _mock_response(self, stream_name: str) -> Any:
         """Load and return mock response data for *stream_name* from disk."""
         if not self.mock_data_path:
             raise SendgridError("mock_data_path is required when use_mock_data=true")
@@ -101,7 +101,7 @@ class Client:
         max_tries=7,
         factor=2,
     )
-    def request(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    def request(  # pylint: disable=too-many-arguments
         self,
         method: str,
         endpoint: str,
@@ -109,8 +109,12 @@ class Client:
         body: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None,
         stream_name: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        """Execute an HTTP request with retry/backoff and return the parsed JSON body."""
+    ) -> Any:
+        """Execute an HTTP request with retry/backoff and return the parsed JSON body.
+
+        Returns a ``dict`` for most endpoints; some endpoints return a ``list``
+        directly (e.g. suppression streams, senders).  Callers must handle both.
+        """
         if self.use_mock_data and stream_name:
             return self._mock_response(stream_name)
 
@@ -146,7 +150,7 @@ class Client:
         params: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None,
         stream_name: Optional[str] = None,
-    ) -> Dict[str, Any]:
+    ) -> Any:
         """Perform a GET request and return the parsed JSON response."""
         return self.request(
             method="GET",

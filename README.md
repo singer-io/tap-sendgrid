@@ -118,7 +118,7 @@ This tap:
 
 - Primary keys: `['group_id', 'recipient_email']`
 - Replication strategy: FULL_TABLE
-- Pagination: cursor (`_metadata.next`) — one request per parent group
+- Pagination: none (single list response per parent group)
 - Parent stream: `suppression_groups`
 
 [templates](https://docs.sendgrid.com/api-reference/transactional-templates/retrieve-paged-transactional-templates)

@@ -14,7 +14,7 @@ from tap_sendgrid.sync import sync
 
 LOGGER = singer.get_logger()
 
-REQUIRED_CONFIG_KEYS = ["start_date"]
+REQUIRED_CONFIG_KEYS = ["api_key", "start_date"]
 
 
 def do_discover() -> None:
