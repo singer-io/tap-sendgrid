@@ -1,6 +1,7 @@
 """Integration tests for tap-sendgrid stream discovery."""
-from base import SendgridBaseTest
 from tap_tester.base_suite_tests.discovery_test import DiscoveryTest
+
+from base import SendgridBaseTest  # pylint: disable=import-error
 
 
 class SendgridDiscoveryTest(DiscoveryTest, SendgridBaseTest):

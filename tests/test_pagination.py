@@ -1,6 +1,7 @@
 """Integration tests for tap-sendgrid pagination."""
-from base import SendgridBaseTest
 from tap_tester.base_suite_tests.pagination_test import PaginationTest
+
+from base import SendgridBaseTest  # pylint: disable=import-error
 
 
 class SendgridPaginationTest(PaginationTest, SendgridBaseTest):

@@ -1,6 +1,7 @@
 """Integration tests for tap-sendgrid start_date filtering."""
-from base import SendgridBaseTest
 from tap_tester.base_suite_tests.start_date_test import StartDateTest
+
+from base import SendgridBaseTest  # pylint: disable=import-error
 
 
 class SendgridStartDateTest(StartDateTest, SendgridBaseTest):
@@ -29,15 +30,8 @@ class SendgridStartDateTest(StartDateTest, SendgridBaseTest):
         excluded = self.expected_stream_names().difference(self.streams_to_test())
         self.assertSetEqual(excluded, set(self.excluded_stream_reasons().keys()))
 
-    @property
-    def start_date_1(self):
-        """Return first start_date."""
-        return "2020-01-01T00:00:00Z"
-
-    @property
-    def start_date_2(self):
-        """Return second start_date."""
-        return "2022-01-01T00:00:00Z"
+    start_date_1 = "2020-01-01T00:00:00Z"
+    start_date_2 = "2022-01-01T00:00:00Z"
 
     def test_replicated_records(self):
         """Verify later start_date does not increase replicated records."""
@@ -46,4 +40,3 @@ class SendgridStartDateTest(StartDateTest, SendgridBaseTest):
                 count_1 = StartDateTest.record_count_by_stream_1.get(stream, 0)
                 count_2 = StartDateTest.record_count_by_stream_2.get(stream, 0)
                 self.assertGreaterEqual(count_1, count_2)
-

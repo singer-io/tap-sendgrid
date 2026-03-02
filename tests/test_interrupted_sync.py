@@ -1,6 +1,7 @@
 """Integration tests for tap-sendgrid interrupted-sync recovery."""
-from base import SendgridBaseTest
 from tap_tester.base_suite_tests.interrupted_sync_test import InterruptedSyncTest
+
+from base import SendgridBaseTest  # pylint: disable=import-error
 
 
 class SendgridInterruptedSyncTest(InterruptedSyncTest, SendgridBaseTest):
@@ -41,4 +42,3 @@ class SendgridInterruptedSyncTest(InterruptedSyncTest, SendgridBaseTest):
     def test_interrupted_sync_stream_order(self):
         """Verify interrupted sync state is cleared after recovery."""
         self.assertIsNone(self.resuming_sync_state.get("currently_syncing"))
-

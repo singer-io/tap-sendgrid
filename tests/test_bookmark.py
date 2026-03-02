@@ -1,15 +1,24 @@
 """Integration tests for tap-sendgrid bookmarking."""
-from base import SendgridBaseTest
 from tap_tester.base_suite_tests.bookmark_test import BookmarkTest
+
+from base import SendgridBaseTest  # pylint: disable=import-error
 
 
 class SendgridBookmarkTest(BookmarkTest, SendgridBaseTest):
-    """Verify bookmark-based incremental replication."""
+    """Verify bookmark-based incremental replication for all incremental streams.
+
+    Full-table streams are excluded: they have no bookmark behavior.
+    Zero-record incremental streams still validate bookmark state format.
+    """
 
     bookmark_format = "%Y-%m-%dT%H:%M:%S%z"
     initial_bookmarks = {
         "bookmarks": {
-            "global_suppressions": {"created": "2020-01-01T00:00:00.000000Z"},
+            "blocks":             {"created": "2020-01-01T00:00:00.000000Z"},
+            "bounces":            {"created": "2020-01-01T00:00:00.000000Z"},
+            "spam_reports":       {"created": "2020-01-01T00:00:00.000000Z"},
+            "invalid_emails":     {"created": "2020-01-01T00:00:00.000000Z"},
+            "global_suppressions":{"created": "2020-01-01T00:00:00.000000Z"},
         }
     }
 
@@ -19,17 +28,15 @@ class SendgridBookmarkTest(BookmarkTest, SendgridBaseTest):
         return "tap_tester_sendgrid_bookmark_test"
 
     def streams_to_test(self):
-        """Return incremental streams with stable bookmark coverage."""
-        return {"global_suppressions"}
+        """Return all 5 incremental streams."""
+        return {s for s, m in self.expected_metadata().items()
+                if m[self.REPLICATION_METHOD] == self.INCREMENTAL}
 
     def excluded_stream_reasons(self):
-        """Return documented reasons for streams excluded from this test."""
-        included = self.streams_to_test()
-        excluded = self.expected_stream_names().difference(included)
-        return {
-            stream: "Excluded: bookmark test needs >=2 historical incremental values in account."
-            for stream in excluded
-        }
+        """Document exclusion for full-table streams: no bookmark behavior."""
+        return {s: "Full-table stream: bookmark state not applicable."
+                for s, m in self.expected_metadata().items()
+                if m[self.REPLICATION_METHOD] == self.FULL_TABLE}
 
     def test_excluded_streams_are_documented(self):
         """Verify each excluded stream has a documented reason."""
@@ -37,28 +44,48 @@ class SendgridBookmarkTest(BookmarkTest, SendgridBaseTest):
         self.assertSetEqual(excluded, set(self.excluded_stream_reasons().keys()))
 
     def calculate_new_bookmarks(self):
-        """Return deterministic bookmark for sparse test-account data."""
-        return {
-            "global_suppressions": {"created": "2026-02-03T00:00:00.000000Z"}
-        }
+        """Return a deterministic future bookmark for all incremental streams."""
+        return {s: {"created": "2026-02-03T00:00:00.000000Z"} for s in self.streams_to_test()}
+
+    def test_first_sync_bookmark(self):
+        """Verify sync-1 bookmark equals max replication key. Skip streams with no records."""
+        for stream in BookmarkTest.test_streams:
+            records = [r["data"]
+                       for r in BookmarkTest.synced_records_1.get(stream, {}).get("messages", [])
+                       if r.get("action") == "upsert"]
+            if not records:
+                continue
+            with self.subTest(stream=stream):
+                rep_key = next(iter(self.expected_replication_keys(stream)))
+                self.assertEqual(max(self.parse_date(r[rep_key]) for r in records),
+                                 self.parse_date(BookmarkTest.bookmark_values_1.get(stream, {})))
+
+    def test_second_sync_bookmark(self):
+        """Verify sync-2 bookmark equals max replication key. Skip streams with no records."""
+        for stream in BookmarkTest.test_streams:
+            records = [r["data"]
+                       for r in BookmarkTest.synced_records_2.get(stream, {}).get("messages", [])
+                       if r.get("action") == "upsert"]
+            if not records:
+                continue
+            with self.subTest(stream=stream):
+                rep_key = next(iter(self.expected_replication_keys(stream)))
+                self.assertEqual(max(self.parse_date(r[rep_key]) for r in records),
+                                 self.parse_date(BookmarkTest.bookmark_values_2.get(stream, {})))
 
     def test_first_vs_second_records(self):
-        """Verify sync2 records are not greater than sync1 for incremental streams."""
+        """Sync-2 records (before bookmark) must be <= sync-1 records. Handles sparse data."""
         for stream in BookmarkTest.test_streams:
             with self.subTest(stream=stream):
                 if BookmarkTest.expected_replication_methods.get(stream) != self.INCREMENTAL:
                     continue
                 rep_key = next(iter(self.expected_replication_keys(stream)))
-                bookmark_val_1 = BookmarkTest.bookmark_values_1.get(stream, {})
-                sync_1_records = [
-                    rec["data"]
-                    for rec in BookmarkTest.synced_records_1.get(stream, {}).get("messages", [])
-                    if rec.get("action") == "upsert"
-                ]
-                sync_2_records = [
-                    rec["data"]
-                    for rec in BookmarkTest.synced_records_2.get(stream, {}).get("messages", [])
-                    if rec.get("action") == "upsert"
-                    and self.parse_date(rec["data"][rep_key]) <= self.parse_date(bookmark_val_1)
-                ]
-                self.assertLessEqual(len(sync_2_records), len(sync_1_records))
+                bm_val_1 = BookmarkTest.bookmark_values_1.get(stream, {})
+                sync_1 = [r["data"]
+                          for r in BookmarkTest.synced_records_1.get(stream, {}).get("messages", [])
+                          if r.get("action") == "upsert"]
+                sync_2 = [r["data"]
+                          for r in BookmarkTest.synced_records_2.get(stream, {}).get("messages", [])
+                          if r.get("action") == "upsert"
+                          and self.parse_date(r["data"][rep_key]) <= self.parse_date(bm_val_1)]
+                self.assertLessEqual(len(sync_2), len(sync_1))

@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 from tap_tester.base_suite_tests.base_case import BaseCase
 
@@ -160,9 +160,40 @@ class SendgridBaseTest(BaseCase):
     def get_credentials():
         return {"api_key": os.getenv("TAP_SENDGRID_API_KEY")}
 
-    def get_properties(self, original=True):
+    def get_properties(self, original=True):  # pylint: disable=unused-argument
         return {
             "start_date": self.start_date,
             "lookback_window_days": 1,
             "request_timeout": 300,
         }
+
+    @staticmethod
+    def _schema_type(schema):
+        """Return the concrete JSON-schema type, resolving null-union types."""
+        t = schema.get("type", "object")
+        if isinstance(t, list):
+            non_null = [x for x in t if x != "null"]
+            return non_null[0] if non_null else "null"
+        return t
+
+    @staticmethod
+    def _generate_value(schema):
+        """Generate one valid mock value for a JSON-schema fragment."""
+        if "enum" in schema and schema["enum"]:
+            return schema["enum"][0]
+        t = SendgridBaseTest._schema_type(schema)
+        if t == "object":
+            props = schema.get("properties", {})
+            required = set(schema.get("required", []))
+            return {
+                k: SendgridBaseTest._generate_value(v)
+                for k, v in props.items()
+                if k in required or SendgridBaseTest._schema_type(v) != "null"
+            }
+        if t == "array":
+            return [SendgridBaseTest._generate_value(schema.get("items", {"type": "string"}))]
+        if t == "string":
+            fmt = schema.get("format")
+            return ("2024-01-01T00:00:00Z" if fmt == "date-time"
+                    else "mock@example.com" if fmt == "email" else "mock")
+        return {"integer": 1, "number": 1.0, "boolean": True}.get(t)
