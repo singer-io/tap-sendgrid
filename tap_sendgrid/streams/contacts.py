@@ -7,9 +7,9 @@ from tap_sendgrid.streams.abstracts import FullTableStream
 class MarketingContactsCount(FullTableStream):
     """Full-table stream for the SendGrid marketing contacts aggregate count.
 
-    The endpoint returns a single summary object (not a list), so
-    ``parse_records`` yields the response dict directly as a single record.
-    There are no natural key properties for this singleton resource.
+    The endpoint ``GET /v3/marketing/contacts/count`` returns a single
+    summary object with no natural unique identifier.  ``key_properties``
+    is intentionally empty — this is a valid Singer append-only stream.
     """
 
     tap_stream_id = "marketing_contacts_count"

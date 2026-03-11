@@ -134,7 +134,13 @@ def test_incremental_datetime_cursor_filters_old_records():
 
 
 def test_incremental_unix_cursor_bookmark_written_as_iso():
-    """Unix-cursor IncrementalStream must write the bookmark as an ISO string."""
+    """Unix-cursor IncrementalStream must write the bookmark as an ISO datetime string.
+
+    The tap-tester BookmarkTest.test_bookmark_format asserts that bookmark
+    values are strings parseable with the configured bookmark_format pattern.
+    Unix timestamps received from the API must be converted to ISO strings
+    before being stored in Singer state.
+    """
     epoch_2024 = 1704067200  # 2024-01-01T00:00:00Z
     responses = [
         [{"email": "a@b.com", "created": epoch_2024}],
@@ -150,8 +156,9 @@ def test_incremental_unix_cursor_bookmark_written_as_iso():
 
     assert count == 1
     _, _, _, bk_value = wb.call_args[0]
-    # Bookmark must be an ISO datetime string (not an integer)
-    assert isinstance(bk_value, str)
+    assert isinstance(bk_value, str), (
+        f"Bookmark must be an ISO string for tap-tester compatibility, got {type(bk_value).__name__!r}: {bk_value!r}"
+    )
     assert "T" in bk_value
 
 
@@ -285,3 +292,62 @@ def test_discover_full_table_streams_have_no_replication_keys():
         assert root_meta.get("forced-replication-method") == "FULL_TABLE", (
             f"{entry.stream} should be FULL_TABLE"
         )
+
+
+def test_incremental_unix_cursor_iso_bookmark_from_iso_state():
+    """ISO string bookmark in state must be converted to epoch for start_time param."""
+    iso_bookmark = "2024-01-01T00:00:00+00:00"  # ISO string stored in state
+    epoch_new = 1704153600  # 2024-01-02
+
+    responses = [
+        [{"email": "c@d.com", "created": epoch_new}],
+    ]
+    stream = UnixIncremental(_make_client(*responses), FakeCatalog())
+
+    with patch("tap_sendgrid.streams.abstracts.get_bookmark", return_value=iso_bookmark), \
+         patch("tap_sendgrid.streams.abstracts.write_bookmark") as wb, \
+         patch("tap_sendgrid.streams.abstracts.write_record"):
+        transformer = MagicMock()
+        transformer.transform.side_effect = lambda r, _s, _m: r
+        count = stream.sync(state={}, transformer=transformer)
+
+    assert count == 1
+    _, _, _, bk_value = wb.call_args[0]
+    # Bookmark must be written as ISO string
+    assert isinstance(bk_value, str)
+    assert "T" in bk_value
+
+
+def test_suppression_stream_empty_response_returns_zero():
+    """IncrementalStream with empty API response must return 0 and still write bookmark.
+
+    The suppression endpoints (blocks, bounces, etc.) return [] when no events
+    exist in the account since start_date.  The stream must not crash and must
+    persist the bookmark so subsequent runs remain idempotent.
+    """
+    responses = [
+        [],  # empty page → pagination stops immediately
+    ]
+    stream = UnixIncremental(_make_client(*responses), FakeCatalog())
+
+    with patch("tap_sendgrid.streams.abstracts.get_bookmark", return_value="2024-01-01T00:00:00Z"), \
+         patch("tap_sendgrid.streams.abstracts.write_bookmark") as wb, \
+         patch("tap_sendgrid.streams.abstracts.write_record") as wr:
+        transformer = MagicMock()
+        transformer.transform.side_effect = lambda r, _s, _m: r
+        count = stream.sync(state={}, transformer=transformer)
+
+    assert count == 0
+    assert wr.call_count == 0
+    # Bookmark must be written even when there are no new records
+    wb.assert_called_once()
+    _, _, _, bk_value = wb.call_args[0]
+    # Bookmark must be an ISO string (tap-tester BookmarkTest.test_bookmark_format requires str)
+    assert isinstance(bk_value, str)
+    assert "T" in bk_value
+
+
+def test_marketing_contacts_count_has_empty_key_properties():
+    """marketing_contacts_count must have empty key_properties (singleton endpoint)."""
+    from tap_sendgrid.streams.contacts import MarketingContactsCount
+    assert MarketingContactsCount.key_properties == tuple()
