@@ -23,6 +23,19 @@ from singer import (
 from tap_sendgrid.client import to_unix_timestamp
 
 
+def _parse_datetime(value: str) -> datetime:
+    """Parse an ISO 8601 / RFC 3339 string into a timezone-aware UTC datetime.
+
+    Using a parsed ``datetime`` for comparisons and ``max()`` is safe regardless
+    of offset representation (``Z`` vs ``+00:00`` vs ``-05:00``), whereas raw
+    string comparison is not reliably orderable across different offset formats.
+    """
+    dt = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
 class BaseStream(ABC):
     """Abstract base class shared by all tap-sendgrid stream implementations."""
 
@@ -216,12 +229,20 @@ class IncrementalStream(OffsetPagedStream):
         return params
 
     def normalize_record_cursor(self, record: Dict[str, Any]) -> Any:
-        """Coerce the replication key value to the expected type and update *record* in place."""
+        """Coerce the replication key value to the expected type and update *record* in place.
+
+        For ``cursor_type == 'unix'`` the raw value is coerced to ``int``.
+        For ``cursor_type == 'datetime'`` the value is parsed to a timezone-aware
+        ``datetime`` in UTC so that comparisons and ``max()`` in ``sync()`` are
+        safe across different RFC 3339 offset representations.
+        """
         key = self.replication_keys[0]
         value = record.get(key)
         if self.cursor_type == "unix" and isinstance(value, str):
             value = int(value)
             record[key] = value
+        elif self.cursor_type == "datetime" and isinstance(value, str):
+            value = _parse_datetime(value)
         return value
 
     def sync(self, state: Dict, transformer: Transformer, parent_obj: Optional[Dict] = None) -> int:
@@ -229,6 +250,8 @@ class IncrementalStream(OffsetPagedStream):
         bookmark = self.get_start_value(state)
         if self.cursor_type == "unix" and isinstance(bookmark, str):
             bookmark = to_unix_timestamp(bookmark)
+        elif self.cursor_type == "datetime" and isinstance(bookmark, str):
+            bookmark = _parse_datetime(bookmark)
         current_max = bookmark
         record_count = 0
 
@@ -253,6 +276,9 @@ class IncrementalStream(OffsetPagedStream):
 
         if self.cursor_type == "unix":
             bk_str = datetime.fromtimestamp(current_max, tz=timezone.utc).isoformat()
+        elif self.cursor_type == "datetime":
+            # current_max is a UTC datetime object; serialise to ISO string.
+            bk_str = current_max.isoformat() if isinstance(current_max, datetime) else str(current_max)
         else:
             bk_str = str(current_max)
         write_bookmark(state, self.tap_stream_id, self.replication_keys[0], bk_str)
