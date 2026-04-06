@@ -14,11 +14,11 @@ class SendgridBookmarkTest(BookmarkTest, SendgridBaseTest):
     bookmark_format = "%Y-%m-%dT%H:%M:%S%z"
     initial_bookmarks = {
         "bookmarks": {
-            "blocks":             {"created": "2020-01-01T00:00:00.000000Z"},
-            "bounces":            {"created": "2020-01-01T00:00:00.000000Z"},
-            "spam_reports":       {"created": "2020-01-01T00:00:00.000000Z"},
-            "invalid_emails":     {"created": "2020-01-01T00:00:00.000000Z"},
-            "global_suppressions":{"created": "2020-01-01T00:00:00.000000Z"},
+            "blocks":             {"created": "2020-01-01T00:00:00Z"},
+            "bounces":            {"created": "2020-01-01T00:00:00Z"},
+            "spam_reports":       {"created": "2020-01-01T00:00:00Z"},
+            "invalid_emails":     {"created": "2020-01-01T00:00:00Z"},
+            "global_suppressions":{"created": "2020-01-01T00:00:00Z"},
         }
     }
 
@@ -45,7 +45,7 @@ class SendgridBookmarkTest(BookmarkTest, SendgridBaseTest):
 
     def calculate_new_bookmarks(self):
         """Return a deterministic future bookmark for all incremental streams."""
-        return {s: {"created": "2026-02-03T00:00:00.000000Z"} for s in self.streams_to_test()}
+        return {s: {"created": "2026-02-03T00:00:00Z"} for s in self.streams_to_test()}
 
     def test_first_sync_bookmark(self):
         """Verify sync-1 bookmark equals max replication key. Skip streams with no records."""

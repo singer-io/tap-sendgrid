@@ -3,7 +3,7 @@
 Validates that all schema files are:
 - Valid JSON
 - Properly structured (type, properties)
-- Free of root-level additionalProperties
+- Root-level additionalProperties, if present, must be True (not False or an object)
 - Using date-time format on all datetime string fields
 - Using consistent 2-space indentation
 """

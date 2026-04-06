@@ -167,4 +167,6 @@ def to_unix_timestamp(value: str) -> int:
     if stripped.lstrip("-").isdigit():
         return int(stripped)
     dt = datetime.fromisoformat(stripped.replace("Z", "+00:00"))
-    return int(dt.replace(tzinfo=timezone.utc).timestamp())
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return int(dt.timestamp())
