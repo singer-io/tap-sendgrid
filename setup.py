@@ -9,8 +9,8 @@ setup(
     classifiers=["Programming Language :: Python :: 3 :: Only"],
     py_modules=["tap_sendgrid"],
     install_requires=[
-        "singer-python==6.1.1",
-        "requests==2.31.0",
+        "singer-python==6.8.0",
+        "requests==2.33.1",
         "backoff==2.2.1",
     ],
     extras_require={
