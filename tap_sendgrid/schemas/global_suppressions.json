@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "created": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

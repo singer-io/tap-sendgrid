@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "group_id": {
+      "type": [
+        "null",
+        "integer",
+        "string"
+      ]
+    },
+    "recipient_email": {
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  },
+  "additionalProperties": true
+}
