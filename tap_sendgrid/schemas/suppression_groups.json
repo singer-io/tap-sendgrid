@@ -1,28 +1,29 @@
 {
   "type": "object",
   "properties": {
-    "email": {
+    "id": {
+      "type": [
+        "null",
+        "integer",
+        "string"
+      ]
+    },
+    "name": {
       "type": [
         "null",
         "string"
       ]
     },
-    "created": {
-      "type": [
-        "null",
-        "integer"
-      ]
-    },
-    "reason": {
+    "description": {
       "type": [
         "null",
         "string"
       ]
     },
-    "status": {
+    "is_default": {
       "type": [
         "null",
-        "string"
+        "boolean"
       ]
     }
   },

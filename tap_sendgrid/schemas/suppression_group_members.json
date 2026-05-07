@@ -1,22 +1,19 @@
 {
   "type": "object",
   "properties": {
-    "id": {
+    "group_id": {
       "type": [
-        "integer"
+        "null",
+        "integer",
+        "string"
       ]
     },
-    "name": {
+    "recipient_email": {
       "type": [
         "null",
         "string"
       ]
-    },
-    "recipient_count": {
-      "type": [
-        "null",
-        "integer"
-      ]
     }
-  }
+  },
+  "additionalProperties": true
 }

@@ -1,22 +1,24 @@
 {
   "type": "object",
   "properties": {
-    "email": {
+    "id": {
       "type": [
+        "null",
         "string"
       ]
     },
-    "created": {
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "contact_count": {
       "type": [
         "null",
         "integer"
       ]
-    },
-    "reason": {
-      "type": [
-        "null",
-        "string"
-      ]
     }
-  }
+  },
+  "additionalProperties": true
 }

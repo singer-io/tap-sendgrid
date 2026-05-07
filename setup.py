@@ -1,41 +1,30 @@
-#!/usr/bin/env python
+from setuptools import setup, find_packages
 
-from setuptools import setup
-
-setup(name='tap-sendgrid',
-      version='1.0.5',
-      description='Singer.io tap for extracting data from the SendGrid API',
-      author='Stitch',
-      url='http://singer.io',
-      classifiers=['Programming Language :: Python :: 3 :: Only'],
-      py_modules=['tap_sendgrid'],
-      install_requires=['singer-python==5.13.2',
-                        'requests==2.32.4',
-                        'pendulum==1.2.0',
-                        'pytz==2024.2',
-                        ],
-      entry_points='''
-          [console_scripts]
-          tap-sendgrid=tap_sendgrid:main
-      ''',
-      packages=['tap_sendgrid'],
-      package_data={
-          'tap_sendgrid/schemas': [
-                "contacts.json",
-                "global_suppressions.json",
-                "groups_members.json",
-                "groups_all.json",
-                "invalids.json",
-                "lists_all.json",
-                "lists_members.json",
-                "segments_all.json",
-                "segments_members.json",
-                "templates_all.json",
-                "blocks.json",
-                "bounces.json",
-                "campaigns.json",
-                "spam_reports.json",
-              ]
-         },
-      include_package_data=True
+setup(
+    name="tap-sendgrid",
+    version="2.0.0",
+    description="Singer.io tap for extracting data from the SendGrid v3 API",
+    author="Stitch",
+    url="http://singer.io",
+    classifiers=["Programming Language :: Python :: 3 :: Only"],
+    install_requires=[
+        "singer-python==6.8.0",
+        "requests==2.33.1",
+        "backoff==2.2.1",
+    ],
+    extras_require={
+        "dev": [
+            "pytest",
+            "coverage",
+        ]
+    },
+    entry_points="""
+        [console_scripts]
+        tap-sendgrid=tap_sendgrid:main
+    """,
+    packages=find_packages(),
+    package_data={
+        "tap_sendgrid": ["schemas/*.json"],
+    },
+    include_package_data=True,
 )
