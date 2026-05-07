@@ -274,14 +274,15 @@ class IncrementalStream(OffsetPagedStream):
                 for child in self.child_to_sync:
                     child.sync(state=state, transformer=transformer, parent_obj=record)
 
-        if self.cursor_type == "unix":
-            bk_str = datetime.fromtimestamp(current_max, tz=timezone.utc).isoformat()
-        elif self.cursor_type == "datetime":
-            # current_max is a UTC datetime object; serialise to ISO string.
-            bk_str = current_max.isoformat() if isinstance(current_max, datetime) else str(current_max)
-        else:
-            bk_str = str(current_max)
-        write_bookmark(state, self.tap_stream_id, self.replication_keys[0], bk_str)
+        if record_count > 0:
+            if self.cursor_type == "unix":
+                bk_str = datetime.fromtimestamp(current_max, tz=timezone.utc).isoformat()
+            elif self.cursor_type == "datetime":
+                # current_max is a UTC datetime object; serialise to ISO string.
+                bk_str = current_max.isoformat() if isinstance(current_max, datetime) else str(current_max)
+            else:
+                bk_str = str(current_max)
+            write_bookmark(state, self.tap_stream_id, self.replication_keys[0], bk_str)
         return record_count
 
 
