@@ -1,16 +1,18 @@
 {
   "type": "object",
   "properties": {
+    "email": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
     "created": {
       "type": [
         "null",
         "integer"
       ]
-    },
-    "email": {
-      "type": [
-        "string"
-      ]
     }
-  }
+  },
+  "additionalProperties": true
 }

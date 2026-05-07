@@ -1,0 +1,50 @@
+{
+  "type": "object",
+  "properties": {
+    "contact_count": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "billable_count": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "identifier_counts": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "AID": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "EID": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "EXTID": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "PHNID": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

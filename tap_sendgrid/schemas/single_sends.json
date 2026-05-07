@@ -3,7 +3,8 @@
   "properties": {
     "id": {
       "type": [
-        "integer"
+        "null",
+        "string"
       ]
     },
     "name": {
@@ -12,17 +13,19 @@
         "string"
       ]
     },
-    "recipient_count": {
+    "status": {
       "type": [
         "null",
-        "integer"
+        "string"
       ]
     },
-    "conditions": {
+    "send_at": {
       "type": [
         "null",
-        "array"
-      ]
+        "string"
+      ],
+      "format": "date-time"
     }
-  }
+  },
+  "additionalProperties": true
 }

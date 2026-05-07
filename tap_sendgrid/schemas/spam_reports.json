@@ -3,6 +3,7 @@
   "properties": {
     "email": {
       "type": [
+        "null",
         "string"
       ]
     },
@@ -12,11 +13,18 @@
         "integer"
       ]
     },
-    "status": {
+    "ip": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "useragent": {
       "type": [
         "null",
         "string"
       ]
     }
-  }
+  },
+  "additionalProperties": true
 }

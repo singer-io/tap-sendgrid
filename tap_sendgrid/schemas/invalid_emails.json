@@ -1,22 +1,24 @@
 {
   "type": "object",
   "properties": {
-    "id": {
-      "type": [
-        "string"
-      ]
-    },
-    "name": {
+    "email": {
       "type": [
         "null",
         "string"
       ]
     },
-    "versions": {
+    "created": {
       "type": [
         "null",
-        "array"
+        "integer"
+      ]
+    },
+    "reason": {
+      "type": [
+        "null",
+        "string"
       ]
     }
-  }
+  },
+  "additionalProperties": true
 }

@@ -3,80 +3,76 @@
   "properties": {
     "id": {
       "type": [
-        "integer"
+        "null",
+        "string"
       ]
     },
-    "title": {
+    "name": {
       "type": [
         "null",
         "string"
       ]
     },
-    "subject": {
-      "type": [
-        "null",
-        "string"
-      ]
-    },
-    "sender_id": {
+    "contacts_count": {
       "type": [
         "null",
         "integer"
       ]
     },
-    "list_ids": {
-      "type": [
-        "null",
-        "array"
-      ]
-    },
-    "segment_ids": {
-      "type": [
-        "null",
-        "array"
-      ]
-    },
-    "categories": {
-      "type": [
-        "null",
-        "array"
-      ]
-    },
-    "suppression_group_id": {
-      "type": [
-        "null",
-        "integer"
-      ]
-    },
-    "custom_unsubscribe_url": {
+    "query_version": {
       "type": [
         "null",
         "string"
       ]
     },
-    "ip_pool": {
+    "parent_list_id": {
       "type": [
         "null",
         "string"
       ]
     },
-    "html_content": {
+    "created_at": {
       "type": [
         "null",
         "string"
-      ]
+      ],
+      "format": "date-time"
     },
-    "plain_content": {
+    "updated_at": {
       "type": [
         "null",
         "string"
-      ]
+      ],
+      "format": "date-time"
+    },
+    "sample_updated_at": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "next_sample_update": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
     },
     "status": {
       "type": [
         "null",
-        "string"
-      ]
+        "object"
+      ],
+      "properties": {
+        "query_validation": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
     }
-  }
+  },
+  "additionalProperties": true
 }

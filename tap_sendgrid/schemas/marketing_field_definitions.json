@@ -3,7 +3,8 @@
   "properties": {
     "id": {
       "type": [
-        "integer"
+        "null",
+        "string"
       ]
     },
     "name": {
@@ -12,29 +13,18 @@
         "string"
       ]
     },
-    "description": {
+    "field_type": {
       "type": [
         "null",
         "string"
       ]
     },
-    "last_email_sent_at": {
-      "type": [
-        "null",
-        "integer"
-      ]
-    },
-    "is_default": {
+    "read_only": {
       "type": [
         "null",
         "boolean"
       ]
-    },
-    "unsubscribes": {
-      "type": [
-        "null",
-        "integer"
-      ]
     }
-  }
+  },
+  "additionalProperties": true
 }

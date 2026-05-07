@@ -1,126 +1,47 @@
-#!/usr/bin/env python3
+"""tap-sendgrid — Singer tap entry point.
+
+Exposes ``do_discover`` and ``main`` which are invoked by the console script
+defined in setup.py.
+"""
+import json
+import sys
 
 import singer
-from singer.catalog import Catalog, CatalogEntry, Schema
-from singer.utils import parse_args
-from singer import metadata
 
-from . import streams
-from .context import Context
-from .http import authed_get
-from .streams import Scopes
-from .syncs import Syncer
+from tap_sendgrid.client import Client
+from tap_sendgrid.discover import discover
+from tap_sendgrid.sync import sync
 
 LOGGER = singer.get_logger()
 
-
-REQUIRED_CONFIG_KEYS = ["start_date", 'api_key']
-
-
-def check_credentials_are_authorized(ctx):
-    res = authed_get(Scopes.source, Scopes.endpoint, ctx.config)
-    scopes = res.json().get('scopes', [])
-
-    missing_auths = set(Scopes.scopes)
-    for s in Scopes.scopes:
-        if s in scopes:
-            missing_auths.remove(s)
-
-    if len(missing_auths):
-        raise Exception('Insufficient authorization, missing for {}'.format(
-            ','.join(missing_auths)
-        ))
+REQUIRED_CONFIG_KEYS = ["api_key", "start_date"]
 
 
-def discover(ctx):
-    check_credentials_are_authorized(ctx)
-    catalog = Catalog([])
-    for stream in streams.STREAMS:
-        schema = Schema.from_dict(streams.load_schema(stream.tap_stream_id),
-                                  inclusion="available")
-
-        mdata = metadata.new()
-
-        for prop in schema.properties:
-            if prop in streams.PK_FIELDS[stream.tap_stream_id]:
-                mdata = metadata.write(mdata, ('properties', prop), 'inclusion', 'automatic')
-            else:
-                mdata = metadata.write(mdata, ('properties', prop), 'inclusion', 'available')
-
-        catalog.streams.append(CatalogEntry(
-            stream=stream.tap_stream_id,
-            tap_stream_id=stream.tap_stream_id,
-            key_properties=streams.PK_FIELDS[stream.tap_stream_id],
-            schema=schema,
-            metadata=metadata.to_list(mdata)
-        ))
-    return catalog
+def do_discover() -> None:
+    """Run discovery mode and write the catalog to stdout as JSON."""
+    LOGGER.info("Starting discover")
+    catalog = discover()
+    json.dump(catalog.to_dict(), sys.stdout, indent=2, ensure_ascii=False)
+    sys.stdout.write("\n")
+    LOGGER.info("Finished discover")
 
 
-def desired_fields(selected, stream_schema):
-    '''
-    Returns fields that should be synced
-    '''
-    all_fields = set()
-    available = set()
-    automatic = set()
+@singer.utils.handle_top_exception(LOGGER)
+def main() -> None:
+    """Parse CLI arguments and dispatch to discover or sync mode."""
+    parsed_args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
+    state = parsed_args.state or {}
 
-    for field, field_schema in stream_schema.properties.items():
-        all_fields.add(field)
-        inclusion = field_schema.inclusion
-        if inclusion == 'automatic':
-            automatic.add(field)
-        elif inclusion == 'available':
-            available.add(field)
-        else:
-            raise Exception('Unknown inclusion ' + inclusion)
-
-    not_selected_but_automatic = automatic.difference(selected)
-    if not_selected_but_automatic:
-        LOGGER.warning(
-            'Fields %s are required but were not selected. Adding them.',
-            not_selected_but_automatic)
-
-    return selected.intersection(available).union(automatic)
+    with Client(parsed_args.config) as client:
+        if parsed_args.discover:
+            do_discover()
+        elif parsed_args.catalog:
+            sync(
+                client=client,
+                catalog=parsed_args.catalog,
+                state=state,
+            )
 
 
-def sync(ctx):
-    check_credentials_are_authorized(ctx)
-
-    for c in ctx.selected_catalog:
-        selected_fields = set(
-            [k for k, v in c.schema.properties.items()
-             if v.selected or k == c.replication_key])
-        fields = desired_fields(selected_fields, c.schema)
-
-        schema = Schema(
-            type='object',
-            properties={prop: c.schema.properties[prop] for prop in fields}
-        )
-        c.schema = schema
-        streams.write_schema(c.tap_stream_id, schema)
-
-    syncer = Syncer(ctx)
-    syncer.sync()
-
-
-def main_impl():
-    args = parse_args(REQUIRED_CONFIG_KEYS)
-    ctx = Context(args.config, args.state)
-    if args.discover:
-        discover(ctx).dump()
-    else:
-        ctx.catalog = Catalog.from_dict(args.properties) \
-            if args.properties else discover(ctx)
-        sync(ctx)
-
-
-def main():
-    try:
-        main_impl()
-    except Exception as exc:
-        LOGGER.critical(exc)
-        raise
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
